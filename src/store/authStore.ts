@@ -1,0 +1,141 @@
+import { create } from "zustand"
+import { supabase, type Profile } from "../lib/supabase"
+
+type AuthResult = { error: { message?: string } | null; data: any }
+
+function withTimeout<T>(
+  promise: any,
+  timeoutMs = 10000,
+  errorMessage = "A operação demorou demais",
+) {
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    }),
+  ])
+}
+
+interface AuthState {
+  user: Profile | null
+  loading: boolean
+  initialized: boolean
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signUp: (data: SignUpData) => Promise<{ error: string | null }>
+  signOut: () => Promise<void>
+  fetchProfile: (userId: string) => Promise<void>
+  init: () => Promise<void>
+}
+
+interface SignUpData {
+  email: string
+  password: string
+  full_name: string
+  phone: string
+  role?: "admin" | "ceo"
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  loading: false,
+  initialized: false,
+
+  init: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    if (session?.user) {
+      await get().fetchProfile(session.user.id)
+    }
+    set({ initialized: true })
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        await get().fetchProfile(session.user.id)
+      } else {
+        set({ user: null })
+      }
+    })
+  },
+
+  fetchProfile: async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single()
+    if (data) set({ user: data })
+  },
+
+  signIn: async (email, password) => {
+    set({ loading: true })
+    try {
+      const normalizedEmail = email.trim().toLowerCase()
+
+      const { data, error } = await withTimeout<AuthResult>(
+        supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        }) as any,
+        20000,
+        "Erro ao entrar: a requisição demorou demais",
+      )
+
+      if (error) {
+        set({ loading: false })
+        const rawMessage = error.message ?? "Erro ao entrar"
+
+        if (rawMessage.toLowerCase().includes("invalid login credentials")) {
+          return { error: "Credenciais inválidas. Verifique e-mail e senha." }
+        }
+
+        if (rawMessage.toLowerCase().includes("email not confirmed")) {
+          return {
+            error: "E-mail não confirmado. Verifique sua caixa de entrada.",
+          }
+        }
+
+        return { error: rawMessage }
+      }
+
+      // Load profile immediately when possible; onAuthStateChange remains as fallback.
+      const authUserId = data?.user?.id
+      if (authUserId) {
+        await get().fetchProfile(authUserId)
+      }
+
+      set({ loading: false })
+      return { error: null }
+    } catch (err) {
+      set({ loading: false })
+      return { error: err instanceof Error ? err.message : "Erro ao entrar" }
+    }
+  },
+
+  signUp: async ({ email, password, full_name, phone, role = "admin" }) => {
+    set({ loading: true })
+    try {
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name, phone, role } },
+      })
+
+      if (authError) {
+        set({ loading: false })
+        return { error: authError.message ?? null }
+      }
+
+      set({ loading: false })
+      return { error: null }
+    } catch (err) {
+      set({ loading: false })
+      return { error: err instanceof Error ? err.message : "An error occurred" }
+    }
+  },
+
+  signOut: async () => {
+    await supabase.auth.signOut()
+    set({ user: null })
+  },
+}))

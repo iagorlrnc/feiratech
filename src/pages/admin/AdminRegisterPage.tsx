@@ -1,0 +1,337 @@
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import {
+  ShoppingBag,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react"
+import { useAuthStore } from "../../store/authStore"
+
+const STEPS = ["Dados Pessoais", "Dados de Acesso", "Confirmação"]
+
+export default function AdminRegisterPage() {
+  const { signUp, loading } = useAuthStore()
+  const navigate = useNavigate()
+  const [step, setStep] = useState(0)
+  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+
+  const [form, setForm] = useState({
+    full_name: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  })
+
+  function update(field: string, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }))
+    setError("")
+  }
+
+  function validateStep() {
+    if (step === 0) {
+      if (!form.full_name.trim()) return "Digite seu nome completo"
+      if (!form.phone.trim()) return "Digite seu telefone"
+    }
+    if (step === 1) {
+      if (!form.email.trim()) return "Digite seu e-mail"
+      if (form.password.length < 6)
+        return "Senha deve ter pelo menos 6 caracteres"
+      if (form.password !== form.confirm_password)
+        return "As senhas não coincidem"
+    }
+    return null
+  }
+
+  function nextStep() {
+    const err = validateStep()
+    if (err) {
+      setError(err)
+      return
+    }
+    setStep((s) => s + 1)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const err = validateStep()
+    if (err) {
+      setError(err)
+      return
+    }
+
+    const { error } = await signUp({
+      email: form.email,
+      password: form.password,
+      full_name: form.full_name,
+      phone: form.phone,
+      role: "admin",
+    })
+
+    if (error) {
+      setError(error)
+    } else {
+      setTimeout(() => {
+        navigate("/admin/dashboard")
+      }, 500)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md animate-fade-in">
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-9 h-9 bg-feira-500 rounded-xl flex items-center justify-center">
+            <ShoppingBag size={18} className="text-white" />
+          </div>
+          <span className="font-display text-xl font-bold text-earth-50">
+            FeiraTech
+          </span>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="font-display text-3xl font-bold text-earth-50">
+            Cadastrar loja
+          </h2>
+          <p className="text-earth-400 mt-2 text-sm">
+            Crie sua conta de lojista na feira
+          </p>
+        </div>
+
+        {/* Steps indicator */}
+        <div className="flex items-center gap-2 mb-8">
+          {STEPS.map((label, i) => (
+            <div key={i} className="flex items-center gap-2 flex-1">
+              <div
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all flex-shrink-0 ${
+                  i < step
+                    ? "bg-sage-500 text-white"
+                    : i === step
+                      ? "bg-feira-500 text-white shadow-lg shadow-feira-500/30"
+                      : "bg-earth-800 text-earth-500"
+                }`}
+              >
+                {i < step ? <CheckCircle size={14} /> : i + 1}
+              </div>
+              <span
+                className={`text-xs hidden sm:block transition-colors ${i === step ? "text-earth-200" : "text-earth-500"}`}
+              >
+                {label}
+              </span>
+              {i < STEPS.length - 1 && (
+                <div
+                  className={`flex-1 h-px transition-colors ${i < step ? "bg-sage-500/50" : "bg-earth-700"}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm mb-6 animate-scale-in">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <form
+          onSubmit={
+            step === 2
+              ? handleSubmit
+              : (e) => {
+                  e.preventDefault()
+                  nextStep()
+                }
+          }
+          className="card p-6 space-y-4"
+        >
+          {/* Step 0: Personal data */}
+          {step === 0 && (
+            <>
+              <div>
+                <label className="label">Nome completo *</label>
+                <div className="relative">
+                  <User
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                  />
+                  <input
+                    type="text"
+                    value={form.full_name}
+                    onChange={(e) => update("full_name", e.target.value)}
+                    className="input-field pl-11"
+                    placeholder="Seu nome completo"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="label">Telefone *</label>
+                <div className="relative">
+                  <Phone
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                  />
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => update("phone", e.target.value)}
+                    className="input-field pl-11"
+                    placeholder="(00) 00000-0000"
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Step 1: Access data */}
+          {step === 1 && (
+            <>
+              <div>
+                <label className="label">E-mail *</label>
+                <div className="relative">
+                  <Mail
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                  />
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => update("email", e.target.value)}
+                    className="input-field pl-11"
+                    placeholder="seu@email.com"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="label">Senha *</label>
+                <div className="relative">
+                  <Lock
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={(e) => update("password", e.target.value)}
+                    className="input-field pl-11 pr-11"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-earth-500 hover:text-earth-300"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="label">Confirmar senha *</label>
+                <div className="relative">
+                  <Lock
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                  />
+                  <input
+                    type="password"
+                    value={form.confirm_password}
+                    onChange={(e) => update("confirm_password", e.target.value)}
+                    className="input-field pl-11"
+                    placeholder="Repita a senha"
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Step 2: Confirmation */}
+          {step === 2 && (
+            <div className="space-y-3">
+              <h3 className="font-medium text-earth-200">
+                Confirme seus dados
+              </h3>
+              <div className="space-y-2 text-sm">
+                {[
+                  { label: "Nome", value: form.full_name },
+                  { label: "Telefone", value: form.phone },
+                  { label: "E-mail", value: form.email },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    className="flex justify-between items-center py-2 border-b border-earth-800"
+                  >
+                    <span className="text-earth-500">{label}</span>
+                    <span className="text-earth-200 font-medium">{value}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-earth-500 mt-3">
+                Após o cadastro, você poderá configurar os detalhes da sua loja
+                e escolher sua posição no mapa da feira. A aprovação final é
+                feita pela administração.
+              </p>
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-2">
+            {step > 0 && (
+              <button
+                type="button"
+                onClick={() => setStep((s) => s - 1)}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <ChevronLeft size={16} /> Voltar
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary flex-1 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Cadastrando...
+                </>
+              ) : step < 2 ? (
+                <>
+                  Continuar <ChevronRight size={16} />
+                </>
+              ) : (
+                <>
+                  Criar conta <CheckCircle size={16} />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        <p className="text-center text-earth-500 text-sm mt-6">
+          Já tem conta?{" "}
+          <Link
+            to="/admin/login"
+            className="text-feira-400 hover:text-feira-300 font-medium"
+          >
+            Entrar
+          </Link>
+        </p>
+      </div>
+    </div>
+  )
+}

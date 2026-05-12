@@ -1,0 +1,132 @@
+import { create } from "zustand"
+import { supabase, type Store } from "../lib/supabase"
+
+type DbResult = { error: { message?: string } | null }
+
+function withTimeout<T>(
+  promise: any,
+  timeoutMs = 15000,
+  errorMessage = "A requisição demorou demais para concluir",
+) {
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    }),
+  ])
+}
+
+interface StoreState {
+  stores: Store[]
+  myStore: Store | null
+  loading: boolean
+  fetchActiveStores: () => Promise<void>
+  fetchMyStore: (ownerId: string) => Promise<void>
+  fetchAllStores: () => Promise<void>
+  createStore: (data: Partial<Store>) => Promise<{ error: string | null }>
+  updateStore: (
+    id: string,
+    data: Partial<Store>,
+  ) => Promise<{ error: string | null }>
+  updateStoreStatus: (
+    id: string,
+    status: Store["status"],
+  ) => Promise<{ error: string | null }>
+  deleteStore: (id: string) => Promise<{ error: string | null }>
+}
+
+export const useStoreStore = create<StoreState>((set) => ({
+  stores: [],
+  myStore: null,
+  loading: false,
+
+  fetchActiveStores: async () => {
+    set({ loading: true })
+    const { data } = await supabase
+      .from("stores")
+      .select("*, profiles(full_name, email, phone)")
+      .eq("status", "active")
+      .order("name")
+    set({ stores: data ?? [], loading: false })
+  },
+
+  fetchMyStore: async (ownerId) => {
+    const { data } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("owner_id", ownerId)
+      .single()
+    set({ myStore: data ?? null })
+  },
+
+  fetchAllStores: async () => {
+    set({ loading: true })
+    const { data } = await supabase
+      .from("stores")
+      .select("*, profiles(full_name, email, phone)")
+      .order("created_at", { ascending: false })
+    set({ stores: data ?? [], loading: false })
+  },
+
+  createStore: async (storeData) => {
+    try {
+      const { error } = await withTimeout<DbResult>(
+        supabase.from("stores").insert([storeData]) as any,
+      )
+      return { error: error?.message ?? null }
+    } catch (err) {
+      return {
+        error:
+          err instanceof Error ? err.message : "Erro inesperado ao criar loja",
+      }
+    }
+  },
+
+  updateStore: async (id, storeData) => {
+    try {
+      const { error } = await withTimeout<DbResult>(
+        supabase.from("stores").update(storeData).eq("id", id) as any,
+      )
+      return { error: error?.message ?? null }
+    } catch (err) {
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Erro inesperado ao atualizar loja",
+      }
+    }
+  },
+
+  updateStoreStatus: async (id, status) => {
+    try {
+      const { error } = await withTimeout<DbResult>(
+        supabase.from("stores").update({ status }).eq("id", id) as any,
+      )
+      return { error: error?.message ?? null }
+    } catch (err) {
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Erro inesperado ao atualizar status",
+      }
+    }
+  },
+
+  deleteStore: async (id) => {
+    try {
+      const { error } = await withTimeout<DbResult>(
+        supabase.from("stores").delete().eq("id", id) as any,
+      )
+      return { error: error?.message ?? null }
+    } catch (err) {
+      return {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Erro inesperado ao excluir loja",
+      }
+    }
+  },
+}))
