@@ -39,17 +39,17 @@ export default function HomePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero */}
       <div className="text-center mb-10 animate-fade-in">
-        <div className="inline-flex items-center gap-2 badge bg-feira-500/15 text-feira-300 border border-feira-500/30 mb-4 text-xs px-3 py-1.5">
+        <div className="inline-flex items-center gap-2 badge bg-palmas-blue text-palmas-dark border border-palmas-blue mb-4 text-xs px-3 py-1.5">
           <MapPin size={11} />
           Feira Virtual — Explore as lojas
         </div>
-        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-earth-50 leading-tight">
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-palmas-text leading-tight">
           Bem-vindo à{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-feira-400 to-feira-200">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-palmas-blue to-palmas-dark">
             Feira Digital
           </span>
         </h1>
-        <p className="mt-4 text-earth-400 text-lg max-w-xl mx-auto">
+        <p className="mt-4 text-gray-600 text-lg max-w-xl mx-auto">
           Encontre lojas, produtos e serviços. Clique em uma banca no mapa para descobrir mais.
         </p>
       </div>
@@ -57,13 +57,13 @@ export default function HomePage() {
       {/* Stats bar */}
       <div className="flex items-center justify-center gap-8 mb-10">
         <div className="text-center">
-          <div className="font-display text-2xl font-bold text-feira-400">{stores.length}</div>
-          <div className="text-xs text-earth-500">Lojas ativas</div>
+          <div className="font-display text-2xl font-bold text-palmas-blue">{stores.length}</div>
+          <div className="text-xs text-gray-500">Lojas ativas</div>
         </div>
-        <div className="w-px h-8 bg-earth-800" />
+        <div className="w-px h-8 bg-gray-100" />
         <div className="text-center">
-          <div className="font-display text-2xl font-bold text-feira-400">{categories.length}</div>
-          <div className="text-xs text-earth-500">Categorias</div>
+          <div className="font-display text-2xl font-bold text-palmas-blue">{categories.length}</div>
+          <div className="text-xs text-gray-500">Categorias</div>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export default function HomePage() {
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         {/* Search */}
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             placeholder="Buscar lojas..."
@@ -80,7 +80,7 @@ export default function HomePage() {
             className="input-field pl-11 pr-4"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-earth-500 hover:text-earth-300">
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
               <X size={14} />
             </button>
           )}
@@ -101,13 +101,13 @@ export default function HomePage() {
         </select>
 
         {/* View toggle */}
-        <div className="flex rounded-xl border border-earth-700 overflow-hidden flex-shrink-0">
+        <div className="flex rounded-md border border-gray-300 overflow-hidden flex-shrink-0">
           {(['grid', 'list', 'map'] as ViewMode[]).map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-medium transition-all ${
-                view === v ? 'bg-feira-500 text-white' : 'bg-earth-800 text-earth-400 hover:text-earth-100'
+                view === v ? 'bg-palmas-blue text-white' : 'bg-gray-100 text-gray-600 hover:text-palmas-text'
               }`}
             >
               {v === 'grid' && <Grid3X3 size={15} />}
@@ -127,17 +127,17 @@ export default function HomePage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-earth-500">
+        <div className="text-center py-20 text-gray-500">
           <div className="text-5xl mb-4">🏪</div>
-          <p className="text-lg font-medium text-earth-400">Nenhuma loja encontrada</p>
+          <p className="text-lg font-medium text-gray-600">Nenhuma loja encontrada</p>
           <p className="text-sm mt-1">Tente ajustar os filtros de busca</p>
         </div>
       ) : view === 'map' ? (
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <div className="card p-4">
-              <h2 className="font-display text-xl font-semibold text-earth-100 mb-4 flex items-center gap-2">
-                <MapPin size={18} className="text-feira-400" />
+              <h2 className="font-display text-xl font-semibold text-palmas-text mb-4 flex items-center gap-2">
+                <MapPin size={18} className="text-palmas-blue" />
                 Mapa da Feira
               </h2>
               <FairMap
@@ -148,7 +148,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="space-y-3">
-            <h3 className="font-medium text-earth-300 text-sm">
+            <h3 className="font-medium text-gray-700 text-sm">
               {selectedStore ? 'Loja selecionada' : `${filtered.length} lojas`}
             </h3>
             <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">

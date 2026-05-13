@@ -28,26 +28,19 @@ export function getSubdomainUrl(
   const protocol = window.location.protocol
   const portString = port ? `:${port}` : ""
 
-  // Check if currently using subdomain-based routing (admin.localhost, ceo.localhost, or production subdomains)
-  const currentSubdomain = getSubdomain()
-  const isSubdomainBased =
-    host.includes(".") && (host.startsWith("admin.") || host.startsWith("ceo."))
-
-  // If using subdomain-based routing (localhost with subdomains or production)
-  if (isSubdomainBased) {
-    if (targetSubdomain === "public") {
-      // Remove subdomain and return to root domain
-      const parts = host.split(".")
-      const rootDomain = parts.slice(1).join(".")
-      return `${protocol}//${rootDomain}${portString}${path}`
-    }
-
-    // Replace or add subdomain
-    const parts = host.split(".")
-    const rootDomain = parts.slice(1).join(".")
-    return `${protocol}//${targetSubdomain}.${rootDomain}${portString}${path}`
+  // Extract root domain safely
+  let rootDomain = host
+  if (host.startsWith("admin.")) {
+    rootDomain = host.replace("admin.", "")
+  } else if (host.startsWith("ceo.")) {
+    rootDomain = host.replace("ceo.", "")
   }
 
-  // If using path-based routing (localhost without subdomains)
-  return path
+  // If public, we just want the root domain without admin/ceo subdomains
+  if (targetSubdomain === "public") {
+    return `${protocol}//${rootDomain}${portString}${path}`
+  }
+
+  // Otherwise, construct the full subdomain URL
+  return `${protocol}//${targetSubdomain}.${rootDomain}${portString}${path}`
 }

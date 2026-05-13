@@ -18,30 +18,30 @@ export default function AdminLayout() {
 
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-earth-950">
+      <div className="min-h-screen bg-palmas-bg">
         <Outlet />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-earth-950 flex">
+    <div className="min-h-screen bg-palmas-bg flex">
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-earth-900 border-r border-earth-800 flex flex-col
+        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col
         transform transition-transform duration-300
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-earth-800">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-feira-500 rounded-xl flex items-center justify-center shadow-lg shadow-feira-500/30">
+            <div className="w-9 h-9 bg-palmas-blue rounded-md flex items-center justify-center shadow-lg shadow-md">
               <ShoppingBag size={18} className="text-white" />
             </div>
             <div>
-              <div className="font-display text-lg font-bold text-earth-50">FeiraTech</div>
-              <div className="text-xs text-earth-400">Painel do Lojista</div>
+              <div className="font-display text-lg font-bold text-palmas-text">FeiraTech</div>
+              <div className="text-xs text-gray-600">Painel do Lojista</div>
             </div>
           </div>
         </div>
@@ -51,10 +51,10 @@ export default function AdminLayout() {
           <NavLink
             to="/admin/dashboard"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-feira-500/20 text-feira-400 border border-feira-500/30'
-                  : 'text-earth-400 hover:text-earth-100 hover:bg-earth-800'
+                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
               }`
             }
           >
@@ -64,10 +64,10 @@ export default function AdminLayout() {
           <NavLink
             to="/admin/store"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+              `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-feira-500/20 text-feira-400 border border-feira-500/30'
-                  : 'text-earth-400 hover:text-earth-100 hover:bg-earth-800'
+                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
               }`
             }
           >
@@ -77,16 +77,16 @@ export default function AdminLayout() {
         </nav>
 
         {/* User */}
-        <div className="p-4 border-t border-earth-800">
+        <div className="p-4 border-t border-gray-200">
           {user && (
             <div className="mb-3 px-2">
-              <div className="text-sm font-medium text-earth-200 truncate">{user.full_name || user.email}</div>
-              <div className="text-xs text-earth-500 truncate">{user.email}</div>
+              <div className="text-sm font-medium text-gray-800 truncate">{user.full_name || user.email}</div>
+              <div className="text-xs text-gray-500 truncate">{user.email}</div>
             </div>
           )}
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm text-earth-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
+            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md text-sm text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
           >
             <LogOut size={16} />
             Sair
@@ -102,11 +102,11 @@ export default function AdminLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-earth-800 bg-earth-900">
-          <button onClick={() => setMobileOpen(true)} className="text-earth-400 hover:text-earth-100">
+        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-gray-200 bg-white">
+          <button onClick={() => setMobileOpen(true)} className="text-gray-600 hover:text-palmas-text">
             <Menu size={22} />
           </button>
-          <span className="font-display font-bold text-earth-100">FeiraTech Admin</span>
+          <span className="font-display font-bold text-palmas-text">FeiraTech Admin</span>
           <div className="w-8" />
         </header>
 

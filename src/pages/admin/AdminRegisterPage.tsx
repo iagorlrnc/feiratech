@@ -91,19 +91,19 @@ export default function AdminRegisterPage() {
       <div className="w-full max-w-md animate-fade-in">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-9 h-9 bg-feira-500 rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-palmas-blue rounded-md flex items-center justify-center">
             <ShoppingBag size={18} className="text-white" />
           </div>
-          <span className="font-display text-xl font-bold text-earth-50">
+          <span className="font-display text-xl font-bold text-palmas-text">
             FeiraTech
           </span>
         </div>
 
         <div className="mb-8">
-          <h2 className="font-display text-3xl font-bold text-earth-50">
+          <h2 className="font-display text-3xl font-bold text-palmas-text">
             Cadastrar loja
           </h2>
-          <p className="text-earth-400 mt-2 text-sm">
+          <p className="text-gray-600 mt-2 text-sm">
             Crie sua conta de lojista na feira
           </p>
         </div>
@@ -113,24 +113,24 @@ export default function AdminRegisterPage() {
           {STEPS.map((label, i) => (
             <div key={i} className="flex items-center gap-2 flex-1">
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all flex-shrink-0 ${
+                className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all flex-shrink-0 ${
                   i < step
-                    ? "bg-sage-500 text-white"
+                    ? "bg-green-600 text-white"
                     : i === step
-                      ? "bg-feira-500 text-white shadow-lg shadow-feira-500/30"
-                      : "bg-earth-800 text-earth-500"
+                      ? "bg-palmas-blue text-white shadow-lg shadow-md"
+                      : "bg-gray-100 text-gray-500"
                 }`}
               >
                 {i < step ? <CheckCircle size={14} /> : i + 1}
               </div>
               <span
-                className={`text-xs hidden sm:block transition-colors ${i === step ? "text-earth-200" : "text-earth-500"}`}
+                className={`text-xs hidden sm:block transition-colors ${i === step ? "text-gray-800" : "text-gray-500"}`}
               >
                 {label}
               </span>
               {i < STEPS.length - 1 && (
                 <div
-                  className={`flex-1 h-px transition-colors ${i < step ? "bg-sage-500/50" : "bg-earth-700"}`}
+                  className={`flex-1 h-px transition-colors ${i < step ? "bg-green-600" : "bg-gray-200"}`}
                 />
               )}
             </div>
@@ -138,7 +138,7 @@ export default function AdminRegisterPage() {
         </div>
 
         {error && (
-          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm mb-6 animate-scale-in">
+          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm mb-6 animate-scale-in">
             <AlertCircle size={16} className="flex-shrink-0" />
             {error}
           </div>
@@ -163,7 +163,7 @@ export default function AdminRegisterPage() {
                 <div className="relative">
                   <User
                     size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
                     type="text"
@@ -180,7 +180,7 @@ export default function AdminRegisterPage() {
                 <div className="relative">
                   <Phone
                     size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
                     type="tel"
@@ -203,7 +203,7 @@ export default function AdminRegisterPage() {
                 <div className="relative">
                   <Mail
                     size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
                     type="email"
@@ -220,7 +220,7 @@ export default function AdminRegisterPage() {
                 <div className="relative">
                   <Lock
                     size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -233,7 +233,7 @@ export default function AdminRegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-earth-500 hover:text-earth-300"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -244,7 +244,7 @@ export default function AdminRegisterPage() {
                 <div className="relative">
                   <Lock
                     size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
                     type="password"
@@ -262,7 +262,7 @@ export default function AdminRegisterPage() {
           {/* Step 2: Confirmation */}
           {step === 2 && (
             <div className="space-y-3">
-              <h3 className="font-medium text-earth-200">
+              <h3 className="font-medium text-gray-800">
                 Confirme seus dados
               </h3>
               <div className="space-y-2 text-sm">
@@ -273,14 +273,14 @@ export default function AdminRegisterPage() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="flex justify-between items-center py-2 border-b border-earth-800"
+                    className="flex justify-between items-center py-2 border-b border-gray-200"
                   >
-                    <span className="text-earth-500">{label}</span>
-                    <span className="text-earth-200 font-medium">{value}</span>
+                    <span className="text-gray-500">{label}</span>
+                    <span className="text-gray-800 font-medium">{value}</span>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-earth-500 mt-3">
+              <p className="text-xs text-gray-500 mt-3">
                 Após o cadastro, você poderá configurar os detalhes da sua loja
                 e escolher sua posição no mapa da feira. A aprovação final é
                 feita pela administração.
@@ -306,7 +306,7 @@ export default function AdminRegisterPage() {
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />
                   Cadastrando...
                 </>
               ) : step < 2 ? (
@@ -322,11 +322,11 @@ export default function AdminRegisterPage() {
           </div>
         </form>
 
-        <p className="text-center text-earth-500 text-sm mt-6">
+        <p className="text-center text-gray-500 text-sm mt-6">
           Já tem conta?{" "}
           <Link
             to="/admin/login"
-            className="text-feira-400 hover:text-feira-300 font-medium"
+            className="text-palmas-blue hover:text-palmas-dark font-medium"
           >
             Entrar
           </Link>

@@ -174,10 +174,10 @@ export default function AdminStorePage() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="mb-6">
-        <h1 className="font-display text-3xl font-bold text-earth-50">
+        <h1 className="font-display text-3xl font-bold text-palmas-text">
           {myStore ? "Editar loja" : "Configurar loja"}
         </h1>
-        <p className="text-earth-400 mt-1 text-sm">
+        <p className="text-gray-600 mt-1 text-sm">
           {myStore
             ? "Atualize as informações da sua banca"
             : "Configure sua presença na feira digital"}
@@ -185,7 +185,7 @@ export default function AdminStorePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-earth-900 rounded-xl border border-earth-800 mb-6">
+      <div className="flex gap-1 p-1 bg-white rounded-md border border-gray-200 mb-6">
         {(["info", "map"] as const).map((tab) => (
           <button
             type="button"
@@ -193,8 +193,8 @@ export default function AdminStorePage() {
             onClick={() => setActiveTab(tab)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab
-                ? "bg-feira-500 text-white shadow-md"
-                : "text-earth-400 hover:text-earth-200"
+                ? "bg-palmas-blue text-white shadow-md"
+                : "text-gray-600 hover:text-gray-800"
             }`}
           >
             {tab === "info" ? (
@@ -211,12 +211,12 @@ export default function AdminStorePage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm mb-4 animate-scale-in">
+        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm mb-4 animate-scale-in">
           <AlertCircle size={16} className="flex-shrink-0" /> {error}
         </div>
       )}
       {success && (
-        <div className="flex items-center gap-3 p-4 bg-sage-500/10 border border-sage-500/30 rounded-xl text-sage-400 text-sm mb-4 animate-scale-in">
+        <div className="flex items-center gap-3 p-4 bg-green-600 border border-green-600 rounded-md text-green-500 text-sm mb-4 animate-scale-in">
           <CheckCircle size={16} /> Loja salva com sucesso!
         </div>
       )}
@@ -331,14 +331,14 @@ export default function AdminStorePage() {
 
         {activeTab === "map" && (
           <div className="card p-6">
-            <div className="flex items-start gap-3 p-3 bg-feira-500/10 border border-feira-500/30 rounded-xl mb-5 text-sm">
-              <Info size={15} className="text-feira-400 flex-shrink-0 mt-0.5" />
-              <div className="text-earth-300">
+            <div className="flex items-start gap-3 p-3 bg-palmas-blue border border-palmas-blue rounded-md mb-5 text-sm">
+              <Info size={15} className="text-palmas-blue flex-shrink-0 mt-0.5" />
+              <div className="text-gray-700">
                 Clique em uma célula{" "}
-                <strong className="text-earth-200">disponível</strong> no mapa
+                <strong className="text-gray-800">disponível</strong> no mapa
                 para escolher a posição da sua banca.
                 {editingPos && (
-                  <span className="block mt-1 text-feira-300 font-medium">
+                  <span className="block mt-1 text-palmas-dark font-medium">
                     Posição selecionada:{" "}
                     {posToLabel(editingPos.x, editingPos.y)} ({editingPos.x},{" "}
                     {editingPos.y})
@@ -365,7 +365,7 @@ export default function AdminStorePage() {
           >
             {saving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{" "}
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />{" "}
                 Salvando...
               </>
             ) : (

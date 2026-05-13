@@ -30,7 +30,7 @@ import CeoMapPage from "./pages/ceo/CeoMapPage"
 import CeoAccountsPage from "./pages/ceo/CeoAccountsPage"
 
 import { useAuthStore } from "./store/authStore"
-import { getSubdomain } from "./lib/subdomain"
+import { getSubdomain, getSubdomainUrl } from "./lib/subdomain"
 
 // Root page that redirects based on subdomain
 function RootPage() {
@@ -42,6 +42,8 @@ function RootPage() {
     if (!initialized) return
 
     if (currentSubdomain === "admin") {
+      // If we are fully on a subdomain, the path is already handled by routing.
+      // But if we landed on root (/) on admin subdomain, we redirect to login
       navigate("/admin/login", { replace: true })
     } else if (currentSubdomain === "ceo") {
       navigate("/ceo/login", { replace: true })
@@ -71,7 +73,6 @@ function RootPage() {
 // Protected route component that validates subdomain access
 function SubdomainGuard({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
-  const navigate = useNavigate()
   const currentSubdomain = getSubdomain()
 
   useEffect(() => {
@@ -80,27 +81,19 @@ function SubdomainGuard({ children }: { children: React.ReactNode }) {
     // If on admin subdomain, allow admin/user roles to public, redirect CEO
     if (currentSubdomain === "admin") {
       if (user && user.role === "ceo") {
-        navigate(
-          "https://ceo." +
-            window.location.hostname.split(".").slice(-2).join(".") +
-            "/ceo/dashboard",
-          { replace: true },
-        )
+        window.location.href = getSubdomainUrl("ceo", "/ceo/dashboard")
+        return
       }
     }
 
     // If on CEO subdomain, only allow CEO role
     if (currentSubdomain === "ceo") {
       if (user && user.role !== "ceo") {
-        navigate(
-          "https://admin." +
-            window.location.hostname.split(".").slice(-2).join(".") +
-            "/admin/dashboard",
-          { replace: true },
-        )
+        window.location.href = getSubdomainUrl("admin", "/admin/dashboard")
+        return
       }
     }
-  }, [user, initialized, navigate, currentSubdomain])
+  }, [user, initialized, currentSubdomain])
 
   if (!initialized) {
     return (

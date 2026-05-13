@@ -67,19 +67,19 @@ export default function FairMap({
   function getCellStyle(state: string) {
     switch (state) {
       case "aisle":
-        return "bg-earth-950/80 cursor-default"
+        return "bg-palmas-bg cursor-default"
       case "mine":
-        return "bg-sage-500/40 border-sage-400 cursor-pointer hover:bg-sage-500/60"
+        return "bg-green-600 border-green-500 cursor-pointer hover:bg-green-600"
       case "selected":
-        return "bg-feira-400/60 border-feira-300 scale-105 shadow-lg shadow-feira-500/30"
+        return "bg-palmas-yellow border-palmas-blue scale-105 shadow-lg shadow-md"
       case "occupied":
-        return "bg-feira-500/25 border-feira-600/50 cursor-pointer hover:bg-feira-500/40 hover:scale-105"
+        return "bg-palmas-blue border-palmas-dark cursor-pointer hover:bg-palmas-blue hover:scale-105"
       case "editing":
-        return "bg-feira-400/60 border-feira-300 animate-pulse"
+        return "bg-palmas-yellow border-palmas-blue animate-pulse"
       default:
         return editable
-          ? "bg-earth-800/30 border-earth-700/30 hover:bg-feira-500/20 hover:border-feira-500/50 cursor-pointer"
-          : "bg-earth-800/20 border-earth-700/20 cursor-default"
+          ? "bg-gray-100 border-gray-300 hover:bg-palmas-blue hover:border-palmas-blue cursor-pointer"
+          : "bg-gray-100 border-gray-300 cursor-default"
     }
   }
 
@@ -96,28 +96,28 @@ export default function FairMap({
   return (
     <div className="select-none">
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-earth-400">
+      <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-600">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-feira-500/25 border border-feira-600/50" />
+          <div className="w-3 h-3 rounded bg-palmas-blue border border-palmas-dark" />
           <span>Loja ativa</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-sage-500/40 border border-sage-400" />
+          <div className="w-3 h-3 rounded bg-green-600 border border-green-500" />
           <span>Minha loja</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-earth-800/30 border border-earth-700/30" />
+          <div className="w-3 h-3 rounded bg-gray-100 border border-gray-300" />
           <span>Disponível</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-earth-950/80" />
+          <div className="w-3 h-3 rounded bg-palmas-bg" />
           <span>Corredor</span>
         </div>
       </div>
 
       {/* Grid */}
       <div
-        className="grid gap-1 p-3 bg-earth-900/50 rounded-2xl border border-earth-800"
+        className="grid gap-1 p-3 bg-white rounded-md border border-gray-200"
         style={{ gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))` }}
       >
         {cells.map(({ x, y }) => {
@@ -143,7 +143,7 @@ export default function FairMap({
                   {store ? (
                     <span className="text-base sm:text-lg">{icon}</span>
                   ) : (
-                    <span className="text-earth-600 text-[8px]">{`${x},${y}`}</span>
+                    <span className="text-gray-500 text-[8px]">{`${x},${y}`}</span>
                   )}
                 </span>
               )}
@@ -157,7 +157,7 @@ export default function FairMap({
         {Array.from({ length: GRID_COLS }, (_, i) => (
           <span
             key={i}
-            className="text-earth-600 text-[9px] font-mono w-0 text-center"
+            className="text-gray-500 text-[9px] font-mono w-0 text-center"
             style={{ flex: 1 }}
           >
             {i}
@@ -167,7 +167,7 @@ export default function FairMap({
 
       {/* Selected store info */}
       {selectedStore && !editable && (
-        <div className="mt-4 p-4 bg-feira-500/10 border border-feira-500/30 rounded-xl animate-slide-up">
+        <div className="mt-4 p-4 bg-palmas-blue border border-palmas-blue rounded-md animate-slide-up">
           <div className="flex items-start gap-3">
             <div className="text-2xl">
               {
@@ -177,14 +177,14 @@ export default function FairMap({
               }
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-semibold text-earth-100 truncate">
+              <div className="font-semibold text-palmas-text truncate">
                 {selectedStore.name}
               </div>
-              <div className="text-xs text-feira-400 mt-0.5">
+              <div className="text-xs text-palmas-blue mt-0.5">
                 Banca {selectedStore.booth_label}
               </div>
               {selectedStore.description && (
-                <div className="text-sm text-earth-300 mt-1 line-clamp-2">
+                <div className="text-sm text-gray-700 mt-1 line-clamp-2">
                   {selectedStore.description}
                 </div>
               )}

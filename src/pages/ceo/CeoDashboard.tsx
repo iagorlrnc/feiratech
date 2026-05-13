@@ -28,15 +28,15 @@ export default function CeoDashboard() {
       label: "Total de lojas",
       value: total,
       icon: Store,
-      color: "text-feira-400",
-      bg: "bg-feira-500/10",
+      color: "text-palmas-blue",
+      bg: "bg-palmas-blue",
     },
     {
       label: "Lojas ativas",
       value: active,
       icon: CheckCircle,
-      color: "text-sage-400",
-      bg: "bg-sage-500/10",
+      color: "text-green-500",
+      bg: "bg-green-600",
     },
     {
       label: "Aguardando",
@@ -64,10 +64,10 @@ export default function CeoDashboard() {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold text-earth-50">
+        <h1 className="font-display text-3xl font-bold text-palmas-text">
           Dashboard
         </h1>
-        <p className="text-earth-400 mt-1">Visão geral da plataforma</p>
+        <p className="text-gray-600 mt-1">Visão geral da plataforma</p>
       </div>
 
       {/* Stats grid */}
@@ -76,13 +76,13 @@ export default function CeoDashboard() {
           <div key={label} className="card p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-earth-500 text-xs mb-2">{label}</p>
+                <p className="text-gray-500 text-xs mb-2">{label}</p>
                 <p className={`font-display text-3xl font-bold ${color}`}>
                   {loading ? "—" : value}
                 </p>
               </div>
               <div
-                className={`w-9 h-9 ${bg} rounded-xl flex items-center justify-center`}
+                className={`w-9 h-9 ${bg} rounded-md flex items-center justify-center`}
               >
                 <Icon size={17} className={color} />
               </div>
@@ -119,20 +119,20 @@ export default function CeoDashboard() {
           <Link
             key={to}
             to={to}
-            className="card p-5 hover:bg-earth-800 transition-all group flex items-center gap-4"
+            className="card p-5 hover:bg-gray-100 transition-all group flex items-center gap-4"
           >
             <div
-              className={`w-11 h-11 bg-${color}-500/15 rounded-xl flex items-center justify-center flex-shrink-0`}
+              className={`w-11 h-11 bg-${color}-500/15 rounded-md flex items-center justify-center flex-shrink-0`}
             >
               <Icon size={20} className={`text-${color}-400`} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-earth-200 text-sm">{label}</div>
-              <div className="text-xs text-earth-500">{desc}</div>
+              <div className="font-medium text-gray-800 text-sm">{label}</div>
+              <div className="text-xs text-gray-500">{desc}</div>
             </div>
             <ArrowRight
               size={15}
-              className="text-earth-600 group-hover:text-earth-400 group-hover:translate-x-1 transition-all"
+              className="text-gray-500 group-hover:text-gray-600 group-hover:translate-x-1 transition-all"
             />
           </Link>
         ))}
@@ -140,14 +140,14 @@ export default function CeoDashboard() {
 
       {/* Pending approval highlight */}
       {pending > 0 && (
-        <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-6 flex items-center justify-between">
+        <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-md mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Clock size={18} className="text-yellow-400" />
             <div>
               <div className="font-medium text-yellow-300 text-sm">
                 {pending} loja{pending > 1 ? "s" : ""} aguardando aprovação
               </div>
-              <div className="text-xs text-earth-500">
+              <div className="text-xs text-gray-500">
                 Revise e aprove para torná-las visíveis ao público
               </div>
             </div>
@@ -163,20 +163,20 @@ export default function CeoDashboard() {
 
       {/* Recent stores */}
       <div className="card">
-        <div className="flex items-center justify-between p-5 border-b border-earth-800">
-          <h2 className="font-display text-lg font-semibold text-earth-100">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+          <h2 className="font-display text-lg font-semibold text-palmas-text">
             Lojas recentes
           </h2>
           <Link
             to="/ceo/stores"
-            className="text-xs text-feira-400 hover:text-feira-300 flex items-center gap-1"
+            className="text-xs text-palmas-blue hover:text-palmas-dark flex items-center gap-1"
           >
             Ver todas <ArrowRight size={12} />
           </Link>
         </div>
-        <div className="divide-y divide-earth-800/50">
+        <div className="divide-y divide-gray-200/50">
           {recentStores.length === 0 ? (
-            <div className="p-8 text-center text-earth-500 text-sm">
+            <div className="p-8 text-center text-gray-500 text-sm">
               Nenhuma loja cadastrada
             </div>
           ) : (
@@ -185,7 +185,7 @@ export default function CeoDashboard() {
                 key={store.id}
                 className="flex items-center gap-4 px-5 py-3.5"
               >
-                <div className="w-9 h-9 bg-earth-800 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
+                <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
                   {store.category === "alimentacao"
                     ? "🍽️"
                     : store.category === "moda"
@@ -193,10 +193,10 @@ export default function CeoDashboard() {
                       : "📦"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-earth-200 text-sm truncate">
+                  <div className="font-medium text-gray-800 text-sm truncate">
                     {store.name}
                   </div>
-                  <div className="text-xs text-earth-500">
+                  <div className="text-xs text-gray-500">
                     {new Date(store.created_at).toLocaleDateString("pt-BR")} ·
                     Banca {store.booth_label}
                   </div>
@@ -204,7 +204,7 @@ export default function CeoDashboard() {
                 <span
                   className={`badge text-xs ${
                     store.status === "active"
-                      ? "bg-sage-500/20 text-sage-300 border border-sage-500/30"
+                      ? "bg-green-600 text-green-500 border border-green-600"
                       : store.status === "pending"
                         ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
                         : "bg-red-500/20 text-red-300 border border-red-500/30"

@@ -18,7 +18,7 @@ export default function CeoLayout() {
 
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-earth-950">
+      <div className="min-h-screen bg-palmas-bg">
         <Outlet />
       </div>
     )
@@ -32,24 +32,24 @@ export default function CeoLayout() {
   ]
 
   return (
-    <div className="min-h-screen bg-earth-950 flex">
+    <div className="min-h-screen bg-palmas-bg flex">
       {/* Sidebar */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-64 flex flex-col
-        bg-gradient-to-b from-earth-900 to-earth-950 border-r border-earth-800
+        bg-gradient-to-b from-gray-200 to-gray-200 border-r border-gray-200
         transform transition-transform duration-300
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-earth-800">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-feira-400 to-feira-600 rounded-xl flex items-center justify-center shadow-lg shadow-feira-500/30">
+            <div className="w-9 h-9 bg-gradient-to-br from-palmas-blue to-palmas-dark rounded-md flex items-center justify-center shadow-lg shadow-md">
               <Crown size={18} className="text-white" />
             </div>
             <div>
-              <div className="font-display text-lg font-bold text-earth-50">FeiraTech</div>
-              <div className="text-xs text-feira-400 font-medium">CEO Panel</div>
+              <div className="font-display text-lg font-bold text-palmas-text">FeiraTech</div>
+              <div className="text-xs text-palmas-blue font-medium">CEO Panel</div>
             </div>
           </div>
         </div>
@@ -61,10 +61,10 @@ export default function CeoLayout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-feira-500/20 text-feira-300 border border-feira-500/30'
-                    : 'text-earth-400 hover:text-earth-100 hover:bg-earth-800/60'
+                    ? 'bg-palmas-blue text-palmas-dark border border-palmas-blue'
+                    : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
                 }`
               }
             >
@@ -75,18 +75,18 @@ export default function CeoLayout() {
         </nav>
 
         {/* User */}
-        <div className="p-4 border-t border-earth-800">
+        <div className="p-4 border-t border-gray-200">
           {user && (
             <div className="mb-3 px-2">
               <div className="flex items-center gap-2 mb-1">
-                <span className="badge bg-feira-500/20 text-feira-300 border border-feira-500/30">CEO</span>
+                <span className="badge bg-palmas-blue text-palmas-dark border border-palmas-blue">CEO</span>
               </div>
-              <div className="text-sm font-medium text-earth-200 truncate">{user.full_name || user.email}</div>
+              <div className="text-sm font-medium text-gray-800 truncate">{user.full_name || user.email}</div>
             </div>
           )}
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm text-earth-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
+            className="flex items-center gap-3 w-full px-4 py-2.5 rounded-md text-sm text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-all"
           >
             <LogOut size={16} />
             Sair
@@ -99,11 +99,11 @@ export default function CeoLayout() {
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-earth-800 bg-earth-900">
-          <button onClick={() => setMobileOpen(true)} className="text-earth-400 hover:text-earth-100">
+        <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-gray-200 bg-white">
+          <button onClick={() => setMobileOpen(true)} className="text-gray-600 hover:text-palmas-text">
             <Menu size={22} />
           </button>
-          <span className="font-display font-bold text-earth-100">CEO Panel</span>
+          <span className="font-display font-bold text-palmas-text">CEO Panel</span>
           <div className="w-8" />
         </header>
 

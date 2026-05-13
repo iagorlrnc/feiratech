@@ -62,26 +62,26 @@ export default function CeoLoginPage() {
     <div className="min-h-screen flex items-center justify-center p-6">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-feira-600/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-sage-600/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-palmas-dark rounded-lg blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-green-500/5 rounded-lg blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-sm animate-fade-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-feira-400 to-feira-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-feira-500/30 mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-palmas-blue to-palmas-dark rounded-md flex items-center justify-center shadow-2xl shadow-md mx-auto mb-4">
             <Crown size={28} className="text-white" />
           </div>
-          <h1 className="font-display text-3xl font-bold text-earth-50">
+          <h1 className="font-display text-3xl font-bold text-palmas-text">
             CEO Panel
           </h1>
-          <p className="text-earth-500 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             Acesso restrito à administração
           </p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm mb-6 animate-scale-in">
+          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm mb-6 animate-scale-in">
             <AlertCircle size={16} className="flex-shrink-0" />
             {error}
           </div>
@@ -93,7 +93,7 @@ export default function CeoLoginPage() {
             <div className="relative">
               <Mail
                 size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
               />
               <input
                 type="email"
@@ -111,7 +111,7 @@ export default function CeoLoginPage() {
             <div className="relative">
               <Lock
                 size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-earth-500"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
               />
               <input
                 type={showPassword ? "text" : "password"}
@@ -124,7 +124,7 @@ export default function CeoLoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-earth-500 hover:text-earth-300"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -138,7 +138,7 @@ export default function CeoLoginPage() {
           >
             {loading || isValidating ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />
                 {loading ? "Entrando..." : "Verificando acesso..."}
               </span>
             ) : (
@@ -147,7 +147,7 @@ export default function CeoLoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-earth-600 text-xs mt-6">
+        <p className="text-center text-gray-500 text-xs mt-6">
           Acesso exclusivo para administradores CEO
         </p>
       </div>
