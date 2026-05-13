@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { ShoppingBag, LayoutDashboard, Store, LogOut, Menu } from 'lucide-react'
+import { ShoppingBag, LayoutDashboard, Store, LogOut, Menu, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 
@@ -13,7 +13,7 @@ export default function AdminLayout() {
 
   const handleSignOut = async () => {
     await signOut()
-    navigate('/admin/login')
+    window.location.href = '/admin/login'
   }
 
   if (isAuthPage) {
@@ -73,6 +73,19 @@ export default function AdminLayout() {
           >
             <Store size={18} />
             Minha Loja
+          </NavLink>
+          <NavLink
+            to="/admin/plans"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
+              }`
+            }
+          >
+            <Zap size={18} />
+            Planos
           </NavLink>
         </nav>
 

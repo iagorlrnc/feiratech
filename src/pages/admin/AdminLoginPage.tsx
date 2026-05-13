@@ -1,16 +1,18 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { ShoppingBag, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
+import { ShoppingBag, Mail, Lock, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
 import { getSubdomainUrl } from "../../lib/subdomain"
 
 export default function AdminLoginPage() {
   const { signIn, loading } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState(location.state?.message || "")
   const [isValidating, setIsValidating] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -103,6 +105,13 @@ export default function AdminLoginPage() {
               Acesse o painel do lojista
             </p>
           </div>
+
+          {success && (
+            <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-md text-green-500 text-sm mb-6 animate-scale-in">
+              <CheckCircle size={16} className="flex-shrink-0" />
+              {success}
+            </div>
+          )}
 
           {error && (
             <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm mb-6 animate-scale-in">

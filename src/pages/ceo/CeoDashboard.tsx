@@ -8,6 +8,7 @@ import {
   CheckCircle,
   AlertCircle,
   ArrowRight,
+  Star,
 } from "lucide-react"
 import { useStoreStore } from "../../store/storeStore"
 
@@ -20,6 +21,7 @@ export default function CeoDashboard() {
 
   const total = stores.length
   const active = stores.filter((s) => s.status === "active").length
+  const featured = stores.filter((s) => s.is_featured).length
   const pending = stores.filter((s) => s.status === "pending").length
   const suspended = stores.filter((s) => s.status === "suspended").length
 
@@ -29,28 +31,28 @@ export default function CeoDashboard() {
       value: total,
       icon: Store,
       color: "text-palmas-blue",
-      bg: "bg-palmas-blue",
+      bg: "bg-palmas-blue/10",
     },
     {
-      label: "Lojas ativas",
-      value: active,
-      icon: CheckCircle,
-      color: "text-green-500",
-      bg: "bg-green-600",
-    },
-    {
-      label: "Aguardando",
-      value: pending,
-      icon: Clock,
-      color: "text-yellow-400",
+      label: "Em Destaque",
+      value: featured,
+      icon: Star,
+      color: "text-yellow-500",
       bg: "bg-yellow-500/10",
     },
     {
-      label: "Suspensas",
-      value: suspended,
-      icon: AlertCircle,
-      color: "text-red-400",
-      bg: "bg-red-500/10",
+      label: "Ativas",
+      value: active,
+      icon: CheckCircle,
+      color: "text-green-500",
+      bg: "bg-green-500/10",
+    },
+    {
+      label: "Pendentes",
+      value: pending,
+      icon: Clock,
+      color: "text-orange-400",
+      bg: "bg-orange-500/10",
     },
   ]
 
@@ -73,119 +75,157 @@ export default function CeoDashboard() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="card p-5">
+          <div key={label} className="card p-5 group hover:border-palmas-blue/50 transition-colors">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-gray-500 text-xs mb-2">{label}</p>
+                <p className="text-gray-500 text-xs mb-2 uppercase tracking-wider font-semibold">{label}</p>
                 <p className={`font-display text-3xl font-bold ${color}`}>
                   {loading ? "—" : value}
                 </p>
               </div>
               <div
-                className={`w-9 h-9 ${bg} rounded-md flex items-center justify-center`}
+                className={`w-10 h-10 ${bg} rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}
               >
-                <Icon size={17} className={color} />
+                <Icon size={18} className={color} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Quick actions */}
-      <div className="grid sm:grid-cols-3 gap-4 mb-8">
-        {[
-          {
-            to: "/ceo/stores",
-            icon: Store,
-            label: "Gerenciar lojas",
-            desc: "Aprovar, suspender, editar",
-            color: "feira",
-          },
-          {
-            to: "/ceo/map",
-            icon: Map,
-            label: "Mapa da feira",
-            desc: "Visualizar ocupação",
-            color: "sage",
-          },
-          {
-            to: "/ceo/accounts",
-            icon: Users,
-            label: "Contas admin",
-            desc: "Controlar acessos",
-            color: "earth",
-          },
-        ].map(({ to, icon: Icon, label, desc, color }) => (
-          <Link
-            key={to}
-            to={to}
-            className="card p-5 hover:bg-gray-100 transition-all group flex items-center gap-4"
-          >
-            <div
-              className={`w-11 h-11 bg-${color}-500/15 rounded-md flex items-center justify-center flex-shrink-0`}
-            >
-              <Icon size={20} className={`text-${color}-400`} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-gray-800 text-sm">{label}</div>
-              <div className="text-xs text-gray-500">{desc}</div>
-            </div>
-            <ArrowRight
-              size={15}
-              className="text-gray-500 group-hover:text-gray-600 group-hover:translate-x-1 transition-all"
-            />
-          </Link>
-        ))}
-      </div>
-
-      {/* Pending approval highlight */}
-      {pending > 0 && (
-        <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-md mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Clock size={18} className="text-yellow-400" />
-            <div>
-              <div className="font-medium text-yellow-300 text-sm">
-                {pending} loja{pending > 1 ? "s" : ""} aguardando aprovação
+      <div className="grid lg:grid-cols-3 gap-8 mb-8">
+        {/* Category Distribution */}
+        <div className="lg:col-span-1 card p-6">
+          <h2 className="font-display text-lg font-semibold text-palmas-text mb-6 flex items-center gap-2">
+            📊 Por Categoria
+          </h2>
+          <div className="space-y-4">
+            {Object.entries(
+              stores.reduce((acc, s) => {
+                acc[s.category] = (acc[s.category] || 0) + 1
+                return acc
+              }, {} as Record<string, number>)
+            ).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
+              <div key={cat}>
+                <div className="flex justify-between text-xs mb-1.5">
+                  <span className="text-gray-600 font-medium capitalize">{cat}</span>
+                  <span className="text-palmas-blue font-bold">{count}</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                  <div 
+                    className="bg-palmas-blue h-full rounded-full transition-all duration-1000" 
+                    style={{ width: `${(count / total) * 100}%` }}
+                  />
+                </div>
               </div>
-              <div className="text-xs text-gray-500">
-                Revise e aprove para torná-las visíveis ao público
-              </div>
-            </div>
+            ))}
+            {total === 0 && <p className="text-center text-gray-400 text-sm py-4">Sem dados</p>}
           </div>
-          <Link
-            to="/ceo/stores"
-            className="text-xs text-yellow-400 hover:text-yellow-300 font-medium flex items-center gap-1"
-          >
-            Ver <ArrowRight size={13} />
-          </Link>
         </div>
-      )}
+
+        {/* Quick actions */}
+        <div className="lg:col-span-2 space-y-4">
+          <h2 className="font-display text-lg font-semibold text-palmas-text mb-2 flex items-center gap-2">
+            ⚡ Ações Rápidas
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[
+              {
+                to: "/ceo/stores",
+                icon: Store,
+                label: "Gerenciar lojas",
+                desc: "Aprovar, suspender, editar",
+                color: "feira",
+              },
+              {
+                to: "/ceo/map",
+                icon: Map,
+                label: "Mapa da feira",
+                desc: "Visualizar ocupação",
+                color: "sage",
+              },
+              {
+                to: "/ceo/accounts",
+                icon: Users,
+                label: "Contas admin",
+                desc: "Controlar acessos",
+                color: "earth",
+              },
+            ].map(({ to, icon: Icon, label, desc, color }) => (
+              <Link
+                key={to}
+                to={to}
+                className="card p-5 hover:bg-gray-100 transition-all group flex items-center gap-4"
+              >
+                <div
+                  className={`w-12 h-12 bg-palmas-blue/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-palmas-blue group-hover:text-white transition-colors`}
+                >
+                  <Icon size={22} className="group-hover:text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-gray-800 text-sm">{label}</div>
+                  <div className="text-xs text-gray-500">{desc}</div>
+                </div>
+                <ArrowRight
+                  size={15}
+                  className="text-gray-400 group-hover:text-palmas-blue group-hover:translate-x-1 transition-all"
+                />
+              </Link>
+            ))}
+          </div>
+          
+          {/* Pending approval highlight */}
+          {pending > 0 && (
+            <div className="p-5 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 border border-yellow-500/30 rounded-xl flex items-center justify-between shadow-sm animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Clock size={20} className="text-white" />
+                </div>
+                <div>
+                  <div className="font-bold text-yellow-600 text-sm">
+                    {pending} loja{pending > 1 ? "s" : ""} pendente{pending > 1 ? "s" : ""}
+                  </div>
+                  <div className="text-xs text-gray-600 font-medium">
+                    Revise para publicar na plataforma
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/ceo/stores"
+                className="btn-primary py-2 px-4 text-xs font-bold"
+              >
+                Analisar
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Recent stores */}
-      <div className="card">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="font-display text-lg font-semibold text-palmas-text">
-            Lojas recentes
+      <div className="card shadow-sm border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <h2 className="font-display text-lg font-semibold text-palmas-text flex items-center gap-2">
+            🆕 Lojas Recentes
           </h2>
           <Link
             to="/ceo/stores"
-            className="text-xs text-palmas-blue hover:text-palmas-dark flex items-center gap-1"
+            className="text-xs font-bold text-palmas-blue hover:underline flex items-center gap-1"
           >
-            Ver todas <ArrowRight size={12} />
+            Ver catálogo completo <ArrowRight size={12} />
           </Link>
         </div>
-        <div className="divide-y divide-gray-200/50">
+        <div className="divide-y divide-gray-100">
           {recentStores.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 text-sm">
-              Nenhuma loja cadastrada
+            <div className="p-12 text-center text-gray-500 text-sm">
+              Nenhuma loja cadastrada no sistema
             </div>
           ) : (
             recentStores.map((store) => (
               <div
                 key={store.id}
-                className="flex items-center gap-4 px-5 py-3.5"
+                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors"
               >
-                <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
+                <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-xl shadow-sm">
                   {store.category === "alimentacao"
                     ? "🍽️"
                     : store.category === "moda"
@@ -193,21 +233,20 @@ export default function CeoDashboard() {
                       : "📦"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-800 text-sm truncate">
+                  <div className="font-bold text-gray-900 text-sm">
                     {store.name}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(store.created_at).toLocaleDateString("pt-BR")} ·
-                    Banca {store.booth_label}
+                  <div className="text-xs text-gray-500 font-medium">
+                    {new Date(store.created_at).toLocaleDateString("pt-BR")} às {new Date(store.created_at).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })} · Banca {store.booth_label}
                   </div>
                 </div>
                 <span
-                  className={`badge text-xs ${
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     store.status === "active"
-                      ? "bg-green-600 text-green-500 border border-green-600"
+                      ? "bg-green-100 text-green-700 border border-green-200"
                       : store.status === "pending"
-                        ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
-                        : "bg-red-500/20 text-red-300 border border-red-500/30"
+                        ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
+                        : "bg-red-100 text-red-700 border border-red-200"
                   }`}
                 >
                   {store.status === "active"

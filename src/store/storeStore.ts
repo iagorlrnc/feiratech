@@ -42,21 +42,39 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   fetchActiveStores: async () => {
     set({ loading: true })
-    const { data } = await supabase
-      .from("stores")
-      .select("*, profiles(full_name, email, phone)")
-      .eq("status", "active")
-      .order("name")
-    set({ stores: data ?? [], loading: false })
+    try {
+      const { data, error } = await withTimeout<any>(
+        supabase
+          .from("stores")
+          .select("*, profiles(full_name, email, phone)")
+          .eq("status", "active")
+          .order("name"),
+        10000
+      )
+      if (error) throw error
+      set({ stores: data ?? [] })
+    } catch (err) {
+      console.error("Error fetching active stores:", err)
+    } finally {
+      set({ loading: false })
+    }
   },
 
   fetchMyStore: async (ownerId) => {
-    const { data } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("owner_id", ownerId)
-      .single()
-    set({ myStore: data ?? null })
+    try {
+      const { data, error } = await withTimeout<any>(
+        supabase
+          .from("stores")
+          .select("*")
+          .eq("owner_id", ownerId)
+          .single(),
+        10000
+      )
+      if (error && error.code !== 'PGRST116') throw error // PGRST116 is 'no rows returned'
+      set({ myStore: data ?? null })
+    } catch (err) {
+      console.error("Error fetching my store:", err)
+    }
   },
 
   fetchAllStores: async () => {

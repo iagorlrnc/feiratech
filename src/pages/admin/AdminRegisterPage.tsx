@@ -14,11 +14,12 @@ import {
   ChevronLeft,
 } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
+import { supabase } from "../../lib/supabase"
 
 const STEPS = ["Dados Pessoais", "Dados de Acesso", "Confirmação"]
 
 export default function AdminRegisterPage() {
-  const { signUp, loading } = useAuthStore()
+  const { signUp } = useAuthStore()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [error, setError] = useState("")
@@ -61,6 +62,8 @@ export default function AdminRegisterPage() {
     setStep((s) => s + 1)
   }
 
+  const [localLoading, setLocalLoading] = useState(false)
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const err = validateStep()
@@ -69,20 +72,37 @@ export default function AdminRegisterPage() {
       return
     }
 
-    const { error } = await signUp({
-      email: form.email,
-      password: form.password,
-      full_name: form.full_name,
-      phone: form.phone,
-      role: "admin",
-    })
+    setLocalLoading(true)
+    setError("")
 
-    if (error) {
-      setError(error)
-    } else {
-      setTimeout(() => {
+    try {
+      const { data, error } = await signUp({
+        email: form.email,
+        password: form.password,
+        full_name: form.full_name,
+        phone: form.phone,
+        role: "admin",
+      })
+
+      if (error) {
+        setError(error)
+        setLocalLoading(false)
+        return
+      }
+
+      // Se houver sessão, o login foi automático
+      if (data?.session) {
         navigate("/admin/dashboard")
-      }, 500)
+      } else {
+        // Se não houver sessão, provavelmente precisa confirmar e-mail
+        navigate("/admin/login", { 
+          state: { message: "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro." } 
+        })
+      }
+    } catch (err) {
+      setError("Erro inesperado ao cadastrar")
+    } finally {
+      setLocalLoading(false)
     }
   }
 
@@ -301,10 +321,10 @@ export default function AdminRegisterPage() {
             )}
             <button
               type="submit"
-              disabled={loading}
+              disabled={localLoading}
               className="btn-primary flex-1 flex items-center justify-center gap-2"
             >
-              {loading ? (
+              {localLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />
                   Cadastrando...

@@ -13,7 +13,7 @@ export default function CeoLayout() {
 
   const handleSignOut = async () => {
     await signOut()
-    navigate('/ceo/login')
+    window.location.href = '/ceo/login'
   }
 
   if (isAuthPage) {
@@ -29,6 +29,7 @@ export default function CeoLayout() {
     { to: '/ceo/stores', icon: Store, label: 'Lojas' },
     { to: '/ceo/map', icon: Map, label: 'Mapa da Feira' },
     { to: '/ceo/accounts', icon: Users, label: 'Contas Admin' },
+    { to: '/ceo/settings', icon: Crown, label: 'Configurações' },
   ]
 
   return (

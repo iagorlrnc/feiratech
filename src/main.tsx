@@ -28,6 +28,10 @@ import CeoDashboard from "./pages/ceo/CeoDashboard"
 import CeoStoresPage from "./pages/ceo/CeoStoresPage"
 import CeoMapPage from "./pages/ceo/CeoMapPage"
 import CeoAccountsPage from "./pages/ceo/CeoAccountsPage"
+import CeoSettingsPage from "./pages/ceo/CeoSettingsPage"
+
+// Admin extra
+import AdminPlansPage from "./pages/admin/AdminPlansPage"
 
 import { useAuthStore } from "./store/authStore"
 import { getSubdomain, getSubdomainUrl } from "./lib/subdomain"
@@ -78,13 +82,7 @@ function SubdomainGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!initialized) return
 
-    // If on admin subdomain, allow admin/user roles to public, redirect CEO
-    if (currentSubdomain === "admin") {
-      if (user && user.role === "ceo") {
-        window.location.href = getSubdomainUrl("ceo", "/ceo/dashboard")
-        return
-      }
-    }
+    // If on admin subdomain, CEOs are allowed (superusers), no redirect needed.
 
     // If on CEO subdomain, only allow CEO role
     if (currentSubdomain === "ceo") {
@@ -135,6 +133,7 @@ function AppRoutes() {
           <Route path="register" element={<AdminRegisterPage />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="store" element={<AdminStorePage />} />
+          <Route path="plans" element={<AdminPlansPage />} />
         </Route>
 
         {/* ── CEO (ceo. subdomain or /ceo prefix in dev) ── */}
@@ -152,6 +151,7 @@ function AppRoutes() {
           <Route path="stores" element={<CeoStoresPage />} />
           <Route path="map" element={<CeoMapPage />} />
           <Route path="accounts" element={<CeoAccountsPage />} />
+          <Route path="settings" element={<CeoSettingsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

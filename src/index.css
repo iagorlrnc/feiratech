@@ -35,34 +35,74 @@
   }
 
   .card {
-    @apply bg-white border border-gray-200 rounded-md shadow-sm;
+    @apply bg-white border border-gray-200 rounded-3xl shadow-sm transition-all duration-300;
   }
 
   .input-field {
-    @apply w-full bg-white border border-gray-300 rounded-md px-4 py-3 text-palmas-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-palmas-blue focus:border-palmas-blue transition-all duration-200;
+    @apply w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-palmas-text placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-palmas-blue/5 focus:border-palmas-blue/30 transition-all duration-300;
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-2;
+    @apply block text-sm font-bold text-gray-700 mb-2 px-1;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md;
+    @apply inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full;
   }
 
   .section-title {
-    @apply font-display text-3xl font-bold text-palmas-text;
+    @apply font-display text-4xl font-bold text-palmas-text tracking-tight;
   }
 
   .glass {
-    @apply bg-white/90 backdrop-blur-md border border-gray-200/50;
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-2xl;
   }
+}
+
+/* Custom Utils */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 rounded-full hover:bg-gray-300 transition-colors;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+/* Animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
 }
 
 /* Leaflet map custom styles */
 .leaflet-container {
   background: #f8f9fa !important;
-  border-radius: 0.5rem;
+  border-radius: 1.5rem;
 }
 
 .leaflet-tile {

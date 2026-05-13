@@ -115,27 +115,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async ({ email, password, full_name, phone, role = "admin" }) => {
     set({ loading: true })
     try {
-      const { error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name, phone, role } },
-      })
+      const { data, error: authError } = await withTimeout<any>(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name, phone, role } },
+        }),
+        30000,
+        "O cadastro demorou demais. Verifique sua conexão."
+      )
 
       if (authError) {
-        set({ loading: false })
-        return { error: authError.message ?? null }
+        return { data: null, error: authError.message ?? "Erro ao cadastrar" }
       }
 
-      set({ loading: false })
-      return { error: null }
+      return { data, error: null }
     } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : "Erro inesperado ao cadastrar" }
+    } finally {
       set({ loading: false })
-      return { error: err instanceof Error ? err.message : "An error occurred" }
     }
   },
 
   signOut: async () => {
-    await supabase.auth.signOut()
-    set({ user: null })
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error("Error signing out:", err)
+    } finally {
+      set({ user: null })
+      // Clear any local storage that might be stuck
+      localStorage.clear()
+      sessionStorage.clear()
+    }
   },
 }))

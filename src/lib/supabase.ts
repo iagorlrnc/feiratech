@@ -31,16 +31,23 @@ export interface Store {
   booth_y: number
   booth_label: string
   status: 'pending' | 'active' | 'suspended'
+  plan: 'basico' | 'profissional' | 'premium'
+  is_featured: boolean
   created_at: string
   updated_at: string
   profiles?: Profile
 }
 
-export interface FaireMap {
+export interface FairSettings {
   id: string
-  width: number
-  height: number
-  background_color: string
+  fair_name: string
+  domain?: string
+  description?: string
+  approval_required: boolean
+  theme_color: string
+  start_date: string
+  end_date: string
+  visitor_count_display: string
   updated_at: string
 }
 

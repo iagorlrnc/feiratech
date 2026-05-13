@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   Save,
@@ -10,11 +10,15 @@ import {
   Instagram,
   MessageCircle,
   Info,
+  Upload,
+  Camera,
+  X,
+  Loader2,
 } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
 import { useStoreStore } from "../../store/storeStore"
 import FairMap from "../../components/FairMap"
-import { CATEGORY_LABELS } from "../../lib/supabase"
+import { CATEGORY_LABELS, supabase } from "../../lib/supabase"
 
 const AISLES_X = [3, 7]
 const AISLES_Y = [3]
@@ -53,12 +57,16 @@ export default function AdminStorePage() {
     booth_label: "A1",
   })
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState<'logo' | 'banner' | null>(null)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
   const [activeTab, setActiveTab] = useState<"info" | "map">("info")
   const [editingPos, setEditingPos] = useState<{ x: number; y: number } | null>(
     null,
   )
+
+  const logoInputRef = useRef<HTMLInputElement>(null)
+  const bannerInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!user) {
@@ -94,9 +102,39 @@ export default function AdminStorePage() {
     setSuccess(false)
   }
 
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'banner') {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+
+    setUploading(type)
+    setError("")
+
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}/${type}_${Math.random()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('store-assets')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-assets')
+        .getPublicUrl(filePath)
+
+      update(type === 'logo' ? 'logo_url' : 'banner_url', publicUrl)
+    } catch (err) {
+      console.error(err)
+      setError("Erro ao fazer upload da imagem. Verifique se o bucket 'store-assets' existe e tem permissão pública.")
+    } finally {
+      setUploading(null)
+    }
+  }
+
   function handleSelectPosition(x: number, y: number) {
     if (isAisle(x, y)) return
-    // Check if occupied by another store
     const occupied = stores.find(
       (s) => s.booth_x === x && s.booth_y === y && s.id !== myStore?.id,
     )
@@ -117,7 +155,7 @@ export default function AdminStorePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!user) {
-      setError("Você precisa estar autenticado para cadastrar a loja")
+      setError("Você precisa estar autenticado")
       return
     }
     if (!form.name.trim()) {
@@ -148,22 +186,25 @@ export default function AdminStorePage() {
         booth_label: posToLabel(editingPos.x, editingPos.y),
       }
 
+      console.log("Saving store data...", storeData)
       const result = myStore
         ? await updateStore(myStore.id, storeData)
         : await createStore({ ...storeData, status: "pending" })
 
       if (result.error) {
-        setError(result.error)
-        return
+        throw new Error(result.error)
       }
 
       setSuccess(true)
-      await Promise.all([fetchMyStore(user.id), fetchActiveStores()])
+      
+      // Fetch fresh data but don't let it block the UI if it's slow
+      fetchMyStore(user.id).catch(console.error)
+      fetchActiveStores().catch(console.error)
+      
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erro inesperado ao salvar a loja",
-      )
+      console.error("Error saving store:", err)
+      setError(err instanceof Error ? err.message : "Erro inesperado ao salvar")
     } finally {
       setSaving(false)
     }
@@ -172,176 +213,225 @@ export default function AdminStorePage() {
   const otherStores = stores.filter((s) => s.id !== myStore?.id)
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in">
-      <div className="mb-6">
+    <div className={`${activeTab === 'map' ? 'max-w-5xl' : 'max-w-2xl'} mx-auto animate-fade-in transition-all duration-500`}>
+      <div className="mb-6 px-1">
         <h1 className="font-display text-3xl font-bold text-palmas-text">
-          {myStore ? "Editar loja" : "Configurar loja"}
+          {myStore ? "Minha Loja" : "Configurar loja"}
         </h1>
-        <p className="text-gray-600 mt-1 text-sm">
+        <p className="text-gray-500 mt-1 text-sm">
           {myStore
-            ? "Atualize as informações da sua banca"
+            ? "Gerencie as informações públicas da sua banca"
             : "Configure sua presença na feira digital"}
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-white rounded-md border border-gray-200 mb-6">
+      <div className="flex gap-1 p-1 bg-white rounded-2xl border border-gray-100 mb-8 shadow-sm">
         {(["info", "map"] as const).map((tab) => (
           <button
             type="button"
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
               activeTab === tab
-                ? "bg-palmas-blue text-white shadow-md"
-                : "text-gray-600 hover:text-gray-800"
+                ? "bg-palmas-blue text-white shadow-lg shadow-palmas-blue/20"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             {tab === "info" ? (
-              <>
-                <Store size={15} /> Informações
-              </>
+              <><Store size={16} /> Informações</>
             ) : (
-              <>
-                <MapPin size={15} /> Posição no Mapa
-              </>
+              <><MapPin size={16} /> Posição no Mapa</>
             )}
           </button>
         ))}
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm mb-4 animate-scale-in">
-          <AlertCircle size={16} className="flex-shrink-0" /> {error}
+        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm mb-6 animate-scale-in">
+          <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold">Atenção</p>
+            <p className="opacity-90">{error}</p>
+          </div>
         </div>
       )}
       {success && (
-        <div className="flex items-center gap-3 p-4 bg-green-600 border border-green-600 rounded-md text-green-500 text-sm mb-4 animate-scale-in">
-          <CheckCircle size={16} /> Loja salva com sucesso!
+        <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-100 rounded-2xl text-green-600 text-sm mb-6 animate-scale-in">
+          <CheckCircle size={18} className="flex-shrink-0" />
+          <p className="font-bold text-green-700">Dados salvos com sucesso!</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {activeTab === "info" && (
-          <div className="card p-6 space-y-5">
-            <div>
-              <label className="label">Nome da loja *</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                className="input-field"
-                placeholder="Ex: Barraca da Dona Maria"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="label">Categoria</label>
-              <select
-                value={form.category}
-                onChange={(e) => update("category", e.target.value)}
-                className="input-field"
+          <div className="space-y-6">
+            {/* Imagens (Banner e Logo) */}
+            <div className="card overflow-hidden">
+              <div 
+                className="h-48 bg-gray-100 relative group cursor-pointer"
+                onClick={() => bannerInputRef.current?.click()}
               >
-                {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="label">Descrição</label>
-              <textarea
-                value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                className="input-field resize-none"
-                rows={3}
-                placeholder="Descreva sua loja, produtos e diferenciais..."
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="label">
-                  <Phone size={12} className="inline mr-1" />
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => update("phone", e.target.value)}
-                  className="input-field"
-                  placeholder="(00) 0000-0000"
+                {form.banner_url ? (
+                  <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+                    <Camera size={32} />
+                    <span className="text-xs font-bold uppercase tracking-widest">Adicionar Capa</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-bold">
+                  {uploading === 'banner' ? <Loader2 className="animate-spin" /> : 'Alterar Capa'}
+                </div>
+                <input 
+                  ref={bannerInputRef}
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => handleFileUpload(e, 'banner')}
                 />
               </div>
-              <div>
-                <label className="label">
-                  <MessageCircle size={12} className="inline mr-1" />
-                  WhatsApp
-                </label>
-                <input
-                  type="tel"
-                  value={form.whatsapp}
-                  onChange={(e) => update("whatsapp", e.target.value)}
-                  className="input-field"
-                  placeholder="5500000000000"
-                />
+
+              <div className="px-8 pb-8">
+                <div className="relative -mt-12 mb-6 flex items-end gap-6">
+                  <div 
+                    className="w-24 h-24 bg-white rounded-2xl shadow-xl border-4 border-white overflow-hidden group cursor-pointer"
+                    onClick={() => logoInputRef.current?.click()}
+                  >
+                    {form.logo_url ? (
+                      <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <Camera size={24} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                      {uploading === 'logo' ? <Loader2 className="animate-spin" /> : 'LOGO'}
+                    </div>
+                    <input 
+                      ref={logoInputRef}
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => handleFileUpload(e, 'logo')}
+                    />
+                  </div>
+                  <div className="pb-2">
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Status da Loja</p>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                      myStore?.status === 'active' ? 'bg-green-50 text-green-600 border-green-100' :
+                      myStore?.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
+                      'bg-red-50 text-red-600 border-red-100'
+                    }`}>
+                      {myStore?.status === 'active' ? 'Publicada' : myStore?.status === 'pending' ? 'Em Análise' : 'Suspensa'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-6">
+                  <div>
+                    <label className="label">Nome da loja *</label>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => update("name", e.target.value)}
+                      className="input-field"
+                      placeholder="Ex: Barraca da Dona Maria"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="label">Categoria</label>
+                      <select
+                        value={form.category}
+                        onChange={(e) => update("category", e.target.value)}
+                        className="input-field"
+                      >
+                        {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                          <option key={key} value={key}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Banca Selecionada</label>
+                      <div className="input-field bg-gray-50 flex items-center justify-between text-gray-500 font-bold">
+                        <span>{form.booth_label || 'Não selecionada'}</span>
+                        <button type="button" onClick={() => setActiveTab('map')} className="text-palmas-blue text-xs hover:underline">Alterar no mapa</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">Descrição da Loja</label>
+                    <textarea
+                      value={form.description}
+                      onChange={(e) => update("description", e.target.value)}
+                      className="input-field resize-none h-32"
+                      placeholder="Descreva sua loja, produtos e diferenciais..."
+                    />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="label">Telefone de Contato</label>
+                      <div className="relative">
+                        <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="tel"
+                          value={form.phone}
+                          onChange={(e) => update("phone", e.target.value)}
+                          className="input-field pl-11"
+                          placeholder="(00) 00000-0000"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="label">WhatsApp (Link Direto)</label>
+                      <div className="relative">
+                        <MessageCircle size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="tel"
+                          value={form.whatsapp}
+                          onChange={(e) => update("whatsapp", e.target.value)}
+                          className="input-field pl-11"
+                          placeholder="Ex: 5563984000000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">Instagram (@usuario)</label>
+                    <div className="relative">
+                      <Instagram size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        value={form.instagram}
+                        onChange={(e) => update("instagram", e.target.value)}
+                        className="input-field pl-11"
+                        placeholder="Ex: minha.loja"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <label className="label">
-                <Instagram size={12} className="inline mr-1" />
-                Instagram (sem @)
-              </label>
-              <input
-                type="text"
-                value={form.instagram}
-                onChange={(e) => update("instagram", e.target.value)}
-                className="input-field"
-                placeholder="minha_loja"
-              />
-            </div>
-
-            <div>
-              <label className="label">URL da logo</label>
-              <input
-                type="url"
-                value={form.logo_url}
-                onChange={(e) => update("logo_url", e.target.value)}
-                className="input-field"
-                placeholder="https://..."
-              />
-            </div>
-
-            <div>
-              <label className="label">URL do banner</label>
-              <input
-                type="url"
-                value={form.banner_url}
-                onChange={(e) => update("banner_url", e.target.value)}
-                className="input-field"
-                placeholder="https://..."
-              />
             </div>
           </div>
         )}
 
         {activeTab === "map" && (
-          <div className="card p-6">
-            <div className="flex items-start gap-3 p-3 bg-palmas-blue border border-palmas-blue rounded-md mb-5 text-sm">
-              <Info size={15} className="text-palmas-blue flex-shrink-0 mt-0.5" />
-              <div className="text-gray-700">
-                Clique em uma célula{" "}
-                <strong className="text-gray-800">disponível</strong> no mapa
-                para escolher a posição da sua banca.
+          <div className="card p-6 overflow-hidden animate-scale-in">
+            <div className="flex items-start gap-3 p-4 bg-palmas-blue/10 border border-palmas-blue/20 rounded-2xl mb-6 text-sm">
+              <Info size={18} className="text-palmas-blue flex-shrink-0 mt-0.5" />
+              <div className="text-gray-700 leading-relaxed">
+                Clique em uma célula <strong className="text-palmas-dark">disponível</strong> no mapa para escolher a posição da sua banca.
                 {editingPos && (
-                  <span className="block mt-1 text-palmas-dark font-medium">
-                    Posição selecionada:{" "}
-                    {posToLabel(editingPos.x, editingPos.y)} ({editingPos.x},{" "}
-                    {editingPos.y})
+                  <span className="block mt-2 px-3 py-1 bg-white/50 w-fit rounded-lg border border-palmas-blue/20 text-palmas-blue font-bold">
+                    Selecionado: {posToLabel(editingPos.x, editingPos.y)}
                   </span>
                 )}
               </div>
