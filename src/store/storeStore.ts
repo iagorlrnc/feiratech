@@ -5,8 +5,8 @@ type DbResult = { error: { message?: string } | null }
 
 function withTimeout<T>(
   promise: any,
-  timeoutMs = 15000,
-  errorMessage = "A requisição demorou demais para concluir",
+  timeoutMs = 45000,
+  errorMessage = "A requisição demorou demais para concluir (timeout)",
 ) {
   return Promise.race<T>([
     promise,
@@ -88,30 +88,28 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   createStore: async (storeData) => {
     try {
-      const { error } = await withTimeout<DbResult>(
-        supabase.from("stores").insert([storeData]) as any,
+      const { error } = await withTimeout<any>(
+        supabase.from("stores").insert([storeData]).select().single(),
+        60000
       )
       return { error: error?.message ?? null }
     } catch (err) {
       return {
-        error:
-          err instanceof Error ? err.message : "Erro inesperado ao criar loja",
+        error: err instanceof Error ? err.message : "Erro inesperado ao criar loja",
       }
     }
   },
 
   updateStore: async (id, storeData) => {
     try {
-      const { error } = await withTimeout<DbResult>(
-        supabase.from("stores").update(storeData).eq("id", id) as any,
+      const { error } = await withTimeout<any>(
+        supabase.from("stores").update(storeData).eq("id", id).select().single(),
+        60000
       )
       return { error: error?.message ?? null }
     } catch (err) {
       return {
-        error:
-          err instanceof Error
-            ? err.message
-            : "Erro inesperado ao atualizar loja",
+        error: err instanceof Error ? err.message : "Erro inesperado ao atualizar loja",
       }
     }
   },

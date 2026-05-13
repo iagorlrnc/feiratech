@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Store, MapPin, AlertCircle, CheckCircle, Clock, ArrowRight, Phone, Instagram } from 'lucide-react'
+import { Store, AlertCircle, CheckCircle, Clock, ArrowRight, Phone, Instagram } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useStoreStore } from '../../store/storeStore'
-import { CATEGORY_ICONS, CATEGORY_LABELS } from '../../lib/supabase'
+import { CATEGORY_ICONS } from '../../lib/supabase'
 
 export default function AdminDashboard() {
   const { user } = useAuthStore()
@@ -76,21 +76,6 @@ export default function AdminDashboard() {
               )}
             </div>
           )}
-
-          {/* Performance Stats (Mocked) */}
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { label: 'Visitas', val: '128', color: 'text-palmas-blue', icon: '👁️' },
-              { label: 'WhatsApp', val: '42', color: 'text-green-500', icon: '💬' },
-              { label: 'Instagram', val: '19', color: 'text-pink-500', icon: '📸' },
-            ].map(s => (
-              <div key={s.label} className="card p-4 text-center group hover:border-palmas-blue/30 transition-all cursor-default">
-                <div className="text-xl mb-1">{s.icon}</div>
-                <div className={`text-2xl font-display font-bold ${s.color}`}>{s.val}</div>
-                <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{s.label}</div>
-              </div>
-            ))}
-          </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Store preview card */}

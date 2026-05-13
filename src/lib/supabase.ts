@@ -33,6 +33,7 @@ export interface Store {
   status: 'pending' | 'active' | 'suspended'
   plan: 'basico' | 'profissional' | 'premium'
   is_featured: boolean
+  business_hours?: string
   created_at: string
   updated_at: string
   profiles?: Profile

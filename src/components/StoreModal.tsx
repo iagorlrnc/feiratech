@@ -1,6 +1,8 @@
-import { X, MapPin, Phone, Instagram, MessageCircle, Tag, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { X, MapPin, Phone, Instagram, MessageCircle, Tag, ExternalLink, Clock } from 'lucide-react'
 import type { Store } from '../lib/supabase'
 import { CATEGORY_ICONS, CATEGORY_LABELS } from '../lib/supabase'
+import { getStoreStatus } from '../lib/hours'
 
 interface StoreModalProps {
   store: Store | null
@@ -8,10 +10,13 @@ interface StoreModalProps {
 }
 
 export default function StoreModal({ store, onClose }: StoreModalProps) {
+  const [showHours, setShowHours] = useState(false)
+  
   if (!store) return null
 
   const categoryIcon = CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS] ?? '📦'
   const categoryLabel = CATEGORY_LABELS[store.category as keyof typeof CATEGORY_LABELS] ?? store.category
+  const statusInfo = getStoreStatus(store.business_hours)
 
   return (
     <div
@@ -72,12 +77,47 @@ export default function StoreModal({ store, onClose }: StoreModalProps) {
             </div>
           </div>
 
-          <div className="mt-8">
-            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Sobre a Loja</h4>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {store.description || 'Esta loja ainda não adicionou uma descrição detalhada. Mas você pode entrar em contato através dos botões abaixo para saber mais sobre seus produtos e serviços.'}
-            </p>
+          <div className="mt-8 grid grid-cols-2 gap-4">
+            <div>
+              <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 text-center sm:text-left">Sobre a Loja</h4>
+              <p className="text-gray-600 text-xs leading-relaxed line-clamp-4">
+                {store.description || 'Esta loja ainda não adicionou uma descrição detalhada.'}
+              </p>
+            </div>
+            <div className="border-l border-gray-100 pl-4">
+              <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <Clock size={10} className="text-palmas-blue" /> Status Agora
+              </h4>
+              <div className="flex flex-col gap-1">
+                <span className={`text-sm font-bold ${statusInfo.color}`}>
+                  {statusInfo.label}
+                </span>
+                {store.business_hours && (
+                  <button 
+                    onClick={() => setShowHours(!showHours)}
+                    className="text-[10px] font-bold text-palmas-blue hover:underline text-left"
+                  >
+                    {showHours ? 'Ocultar horários' : 'Ver quadro de horários'}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
+
+          {showHours && store.business_hours && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-fade-in">
+              <div className="grid gap-2">
+                {JSON.parse(store.business_hours).map((h: any) => (
+                  <div key={h.day} className="flex justify-between text-[11px]">
+                    <span className="text-gray-500 font-medium">{h.day}</span>
+                    <span className={`font-bold ${h.closed ? 'text-red-400' : 'text-gray-700'}`}>
+                      {h.closed ? 'Fechado' : `${h.open} - ${h.close}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Contacts Grid */}
           <div className="mt-10 grid grid-cols-1 gap-3">

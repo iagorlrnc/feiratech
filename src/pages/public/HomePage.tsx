@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, MapPin, Grid3X3, List, X, Star, Calendar, MessageCircle, Instagram, Facebook, Twitter } from 'lucide-react'
+import { Search, MapPin, Grid3X3, List, X, Star, MessageCircle, Instagram, Facebook, Twitter } from 'lucide-react'
 import { useStoreStore } from '../../store/storeStore'
 import { useSettingsStore } from '../../store/settingsStore'
 import StoreCard from '../../components/StoreCard'
@@ -44,7 +44,7 @@ export default function HomePage() {
   }
 
   const formatDateRange = () => {
-    if (!settings?.start_date || !settings?.end_date) return 'Edição 2026'
+    if (!settings?.start_date || !settings?.end_date) return '304 Sul'
     const start = new Date(settings.start_date)
     const end = new Date(settings.end_date)
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' }
@@ -57,28 +57,27 @@ export default function HomePage() {
         {/* Hero */}
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-palmas-blue/10 text-palmas-blue border border-palmas-blue/20 mb-6 text-xs font-bold tracking-wide uppercase">
-            <Calendar size={14} className="animate-pulse" />
+            <MapPin size={14} className="animate-pulse" />
             {formatDateRange()}
           </div>
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-palmas-text leading-tight tracking-tight">
-            Descubra a{' '}
+            Bem vindo a{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-palmas-blue via-palmas-dark to-palmas-blue bg-[length:200%_auto] animate-gradient">
-              {settings?.fair_name || 'Feira Digital'}
+              Feira Maps
             </span>
           </h1>
           <p className="mt-6 text-gray-500 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-            {settings?.description || 'Navegue pelo mapa interativo, encontre seus expositores favoritos e entre em contato direto pelo WhatsApp.'}
+            Uma plataforma de conexão entre expositores e visitantes.
           </p>
         </div>
 
 
         {/* Stats bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
           {[
             { label: 'Expositores', val: stores.length, color: 'text-palmas-blue' },
             { label: 'Categorias', val: categories.length, color: 'text-green-500' },
             { label: 'Visitantes', val: settings?.visitor_count_display || '15k+', color: 'text-orange-500' },
-            { label: 'Cidades', val: '12', color: 'text-purple-500' },
           ].map(s => (
             <div key={s.label} className="card p-6 text-center border-none shadow-sm hover:shadow-md transition-shadow">
               <div className={`font-display text-3xl font-bold ${s.color} mb-1`}>{s.val}</div>

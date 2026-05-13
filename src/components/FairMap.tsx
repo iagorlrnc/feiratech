@@ -174,7 +174,7 @@ export default function FairMap({
       if (store.id === selectedStore?.id) return "selected"
       return "occupied"
     }
-    if (editable && editingPosition?.x === x && editingPosition?.y === y)
+    if (editingPosition?.x === x && editingPosition?.y === y)
       return "editing"
     return "empty"
   }

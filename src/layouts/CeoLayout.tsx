@@ -1,11 +1,10 @@
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Store, Map, Users, LogOut, Menu, Crown } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 
 export default function CeoLayout() {
   const { user, signOut } = useAuthStore()
-  const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -64,7 +63,7 @@ export default function CeoLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-palmas-blue text-palmas-dark border border-palmas-blue'
+                    ? 'bg-palmas-blue text-white shadow-md'
                     : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
                 }`
               }
@@ -80,7 +79,7 @@ export default function CeoLayout() {
           {user && (
             <div className="mb-3 px-2">
               <div className="flex items-center gap-2 mb-1">
-                <span className="badge bg-palmas-blue text-palmas-dark border border-palmas-blue">CEO</span>
+                <span className="badge bg-palmas-blue text-white">CEO</span>
               </div>
               <div className="text-sm font-medium text-gray-800 truncate">{user.full_name || user.email}</div>
             </div>

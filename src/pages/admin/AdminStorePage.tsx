@@ -10,9 +10,7 @@ import {
   Instagram,
   MessageCircle,
   Info,
-  Upload,
   Camera,
-  X,
   Loader2,
 } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
@@ -56,6 +54,7 @@ export default function AdminStorePage() {
     booth_y: 0,
     booth_label: "A1",
   })
+  const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<'logo' | 'banner' | null>(null)
   const [success, setSuccess] = useState(false)
@@ -93,16 +92,21 @@ export default function AdminStorePage() {
         booth_label: myStore.booth_label,
       })
       setEditingPos({ x: myStore.booth_x, y: myStore.booth_y })
+      setIsEditing(false)
+    } else {
+      setIsEditing(true)
     }
   }, [myStore])
 
   function update(field: string, value: string | number) {
+    if (!isEditing) return
     setForm((prev) => ({ ...prev, [field]: value }))
     setError("")
     setSuccess(false)
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'banner') {
+    if (!isEditing) return
     const file = e.target.files?.[0]
     if (!file || !user) return
 
@@ -114,7 +118,7 @@ export default function AdminStorePage() {
       const fileName = `${user.id}/${type}_${Math.random()}.${fileExt}`
       const filePath = `${fileName}`
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('store-assets')
         .upload(filePath, file, { upsert: true })
 
@@ -134,22 +138,24 @@ export default function AdminStorePage() {
   }
 
   function handleSelectPosition(x: number, y: number) {
+    if (!isEditing) return
     if (isAisle(x, y)) return
     const occupied = stores.find(
       (s) => s.booth_x === x && s.booth_y === y && s.id !== myStore?.id,
     )
     if (occupied) {
-      setError("Esta posição já está ocupada por outra loja")
+      setError(`A posição ${posToLabel(x, y)} já está ocupada pela loja "${occupied.name}"`)
       return
     }
     setEditingPos({ x, y })
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       booth_x: x,
       booth_y: y,
       booth_label: posToLabel(x, y),
     }))
     setError("")
+    setActiveTab("info") // Switch back to info tab automatically
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -196,11 +202,12 @@ export default function AdminStorePage() {
       }
 
       setSuccess(true)
-      
+      setIsEditing(false)
+
       // Fetch fresh data but don't let it block the UI if it's slow
       fetchMyStore(user.id).catch(console.error)
       fetchActiveStores().catch(console.error)
-      
+
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
       console.error("Error saving store:", err)
@@ -214,16 +221,30 @@ export default function AdminStorePage() {
 
   return (
     <div className={`${activeTab === 'map' ? 'max-w-5xl' : 'max-w-2xl'} mx-auto animate-fade-in transition-all duration-500`}>
-      <div className="mb-6 px-1">
-        <h1 className="font-display text-3xl font-bold text-palmas-text">
-          {myStore ? "Minha Loja" : "Configurar loja"}
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">
-          {myStore
-            ? "Gerencie as informações públicas da sua banca"
-            : "Configure sua presença na feira digital"}
-        </p>
-      </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-palmas-text">
+              {myStore ? "Minha Loja" : "Configurar loja"}
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              {myStore
+                ? "Gerencie as informações públicas da sua banca"
+                : "Configure sua presença na feira digital"}
+            </p>
+          </div>
+          {myStore && (
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                isEditing
+                  ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-palmas-blue text-white shadow-lg shadow-palmas-blue/20 hover:-translate-y-0.5"
+              }`}
+            >
+              {isEditing ? "Cancelar Edição" : "Editar Informações"}
+            </button>
+          )}
+        </div>
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-white rounded-2xl border border-gray-100 mb-8 shadow-sm">
@@ -232,11 +253,10 @@ export default function AdminStorePage() {
             type="button"
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
-              activeTab === tab
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === tab
                 ? "bg-palmas-blue text-white shadow-lg shadow-palmas-blue/20"
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-            }`}
+              }`}
           >
             {tab === "info" ? (
               <><Store size={16} /> Informações</>
@@ -269,8 +289,8 @@ export default function AdminStorePage() {
             {/* Imagens (Banner e Logo) */}
             <div className="card overflow-hidden">
               <div 
-                className="h-48 bg-gray-100 relative group cursor-pointer"
-                onClick={() => bannerInputRef.current?.click()}
+                className={`h-48 bg-gray-100 relative group transition-all ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
+                onClick={() => isEditing && bannerInputRef.current?.click()}
               >
                 {form.banner_url ? (
                   <img src={form.banner_url} alt="Banner" className="w-full h-full object-cover" />
@@ -280,14 +300,14 @@ export default function AdminStorePage() {
                     <span className="text-xs font-bold uppercase tracking-widest">Adicionar Capa</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-sm font-bold">
+                <div className={`absolute inset-0 bg-black/40 ${isEditing ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'} transition-opacity flex items-center justify-center text-white text-sm font-bold`}>
                   {uploading === 'banner' ? <Loader2 className="animate-spin" /> : 'Alterar Capa'}
                 </div>
-                <input 
+                <input
                   ref={bannerInputRef}
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
                   onChange={(e) => handleFileUpload(e, 'banner')}
                 />
               </div>
@@ -295,8 +315,8 @@ export default function AdminStorePage() {
               <div className="px-8 pb-8">
                 <div className="relative -mt-12 mb-6 flex items-end gap-6">
                   <div 
-                    className="w-24 h-24 bg-white rounded-2xl shadow-xl border-4 border-white overflow-hidden group cursor-pointer"
-                    onClick={() => logoInputRef.current?.click()}
+                    className={`w-24 h-24 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all border-4 border-white overflow-hidden group relative ${isEditing ? 'cursor-pointer' : 'cursor-default'}`}
+                    onClick={() => isEditing && logoInputRef.current?.click()}
                   >
                     {form.logo_url ? (
                       <img src={form.logo_url} alt="Logo" className="w-full h-full object-cover" />
@@ -305,24 +325,23 @@ export default function AdminStorePage() {
                         <Camera size={24} />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                    <div className={`absolute inset-0 bg-black/40 ${isEditing ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'} transition-opacity flex items-center justify-center text-white text-[10px] font-bold`}>
                       {uploading === 'logo' ? <Loader2 className="animate-spin" /> : 'LOGO'}
                     </div>
-                    <input 
+                    <input
                       ref={logoInputRef}
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
                       onChange={(e) => handleFileUpload(e, 'logo')}
                     />
                   </div>
                   <div className="pb-2">
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Status da Loja</p>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                      myStore?.status === 'active' ? 'bg-green-50 text-green-600 border-green-100' :
-                      myStore?.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
-                      'bg-red-50 text-red-600 border-red-100'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${myStore?.status === 'active' ? 'bg-green-50 text-green-600 border-green-100' :
+                        myStore?.status === 'pending' ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
+                          'bg-red-50 text-red-600 border-red-100'
+                      }`}>
                       {myStore?.status === 'active' ? 'Publicada' : myStore?.status === 'pending' ? 'Em Análise' : 'Suspensa'}
                     </span>
                   </div>
@@ -338,6 +357,7 @@ export default function AdminStorePage() {
                       className="input-field"
                       placeholder="Ex: Barraca da Dona Maria"
                       required
+                      disabled={!isEditing}
                     />
                   </div>
 
@@ -348,6 +368,7 @@ export default function AdminStorePage() {
                         value={form.category}
                         onChange={(e) => update("category", e.target.value)}
                         className="input-field"
+                        disabled={!isEditing}
                       >
                         {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                           <option key={key} value={key}>
@@ -360,7 +381,7 @@ export default function AdminStorePage() {
                       <label className="label">Banca Selecionada</label>
                       <div className="input-field bg-gray-50 flex items-center justify-between text-gray-500 font-bold">
                         <span>{form.booth_label || 'Não selecionada'}</span>
-                        <button type="button" onClick={() => setActiveTab('map')} className="text-palmas-blue text-xs hover:underline">Alterar no mapa</button>
+                        <button type="button" onClick={() => setActiveTab('map')} disabled={!isEditing} className={`text-xs hover:underline ${isEditing ? 'text-palmas-blue' : 'text-gray-400 cursor-not-allowed'}`}>Alterar no mapa</button>
                       </div>
                     </div>
                   </div>
@@ -372,6 +393,7 @@ export default function AdminStorePage() {
                       onChange={(e) => update("description", e.target.value)}
                       className="input-field resize-none h-32"
                       placeholder="Descreva sua loja, produtos e diferenciais..."
+                      disabled={!isEditing}
                     />
                   </div>
 
@@ -386,6 +408,7 @@ export default function AdminStorePage() {
                           onChange={(e) => update("phone", e.target.value)}
                           className="input-field pl-11"
                           placeholder="(00) 00000-0000"
+                          disabled={!isEditing}
                         />
                       </div>
                     </div>
@@ -399,6 +422,7 @@ export default function AdminStorePage() {
                           onChange={(e) => update("whatsapp", e.target.value)}
                           className="input-field pl-11"
                           placeholder="Ex: 5563984000000"
+                          disabled={!isEditing}
                         />
                       </div>
                     </div>
@@ -414,6 +438,7 @@ export default function AdminStorePage() {
                         onChange={(e) => update("instagram", e.target.value)}
                         className="input-field pl-11"
                         placeholder="Ex: minha.loja"
+                        disabled={!isEditing}
                       />
                     </div>
                   </div>
@@ -439,7 +464,7 @@ export default function AdminStorePage() {
 
             <FairMap
               stores={otherStores}
-              editable
+              editable={isEditing}
               editingPosition={editingPos}
               onSelectPosition={handleSelectPosition}
               currentStoreId={myStore?.id}
@@ -447,25 +472,26 @@ export default function AdminStorePage() {
           </div>
         )}
 
-        <div className="mt-4">
-          <button
-            type="submit"
-            disabled={saving}
-            className="btn-primary w-full flex items-center justify-center gap-2"
-          >
-            {saving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />{" "}
-                Salvando...
-              </>
-            ) : (
-              <>
-                <Save size={16} />{" "}
-                {myStore ? "Salvar alterações" : "Cadastrar loja"}
-              </>
-            )}
-          </button>
-        </div>
+        {isEditing && (
+          <div className="mt-4">
+            <button
+              type="submit"
+              disabled={saving}
+              className="btn-primary w-full flex items-center justify-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-lg animate-spin" />{" "}
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save size={18} /> Salvar Alterações
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   )

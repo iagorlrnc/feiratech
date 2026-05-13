@@ -1,28 +1,27 @@
-import React from "react"
+import React, { useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-  useNavigate,
+  useLocation,
 } from "react-router-dom"
 import "./index.css"
-import { useEffect } from "react"
 
-// Public pages
+// Layouts
 import PublicLayout from "./layouts/PublicLayout"
-import HomePage from "./pages/public/HomePage"
-
-// Admin pages
 import AdminLayout from "./layouts/AdminLayout"
+import CeoLayout from "./layouts/CeoLayout"
+
+// Pages
+import HomePage from "./pages/public/HomePage"
 import AdminLoginPage from "./pages/admin/AdminLoginPage"
 import AdminRegisterPage from "./pages/admin/AdminRegisterPage"
 import AdminDashboard from "./pages/admin/AdminDashboard"
 import AdminStorePage from "./pages/admin/AdminStorePage"
-
-// CEO pages
-import CeoLayout from "./layouts/CeoLayout"
+import AdminHoursPage from "./pages/admin/AdminHoursPage"
+import AdminPlansPage from "./pages/admin/AdminPlansPage"
 import CeoLoginPage from "./pages/ceo/CeoLoginPage"
 import CeoDashboard from "./pages/ceo/CeoDashboard"
 import CeoStoresPage from "./pages/ceo/CeoStoresPage"
@@ -30,48 +29,26 @@ import CeoMapPage from "./pages/ceo/CeoMapPage"
 import CeoAccountsPage from "./pages/ceo/CeoAccountsPage"
 import CeoSettingsPage from "./pages/ceo/CeoSettingsPage"
 
-// Admin extra
-import AdminPlansPage from "./pages/admin/AdminPlansPage"
-
+// Stores
 import { useAuthStore } from "./store/authStore"
+
+// Lib
 import { getSubdomain, getSubdomainUrl } from "./lib/subdomain"
 
-// Root page that redirects based on subdomain
+// ─── Helper Components ────────────────────────────────────────────────────────
+
+// Redirects from the root domain based on subdomain
 function RootPage() {
-  const currentSubdomain = getSubdomain()
-  const { initialized } = useAuthStore()
-  const navigate = useNavigate()
+  const subdomain = getSubdomain()
 
-  useEffect(() => {
-    if (!initialized) return
-
-    if (currentSubdomain === "admin") {
-      // If we are fully on a subdomain, the path is already handled by routing.
-      // But if we landed on root (/) on admin subdomain, we redirect to login
-      navigate("/admin/login", { replace: true })
-    } else if (currentSubdomain === "ceo") {
-      navigate("/ceo/login", { replace: true })
-    }
-  }, [currentSubdomain, initialized, navigate])
-
-  if (!initialized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Carregando...
-      </div>
-    )
+  if (subdomain === "admin") {
+    return <Navigate to="/admin/dashboard" replace />
+  }
+  if (subdomain === "ceo") {
+    return <Navigate to="/ceo/dashboard" replace />
   }
 
-  // Only show HomePage for public subdomain
-  if (currentSubdomain === "public") {
-    return <HomePage />
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Carregando...
-    </div>
-  )
+  return <HomePage />
 }
 
 // Protected route component that validates subdomain access
@@ -133,6 +110,7 @@ function AppRoutes() {
           <Route path="register" element={<AdminRegisterPage />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="store" element={<AdminStorePage />} />
+          <Route path="hours" element={<AdminHoursPage />} />
           <Route path="plans" element={<AdminPlansPage />} />
         </Route>
 

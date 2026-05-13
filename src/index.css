@@ -39,7 +39,7 @@
   }
 
   .input-field {
-    @apply w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-palmas-text placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-palmas-blue/5 focus:border-palmas-blue/30 transition-all duration-300;
+    @apply w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-palmas-text placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-palmas-blue/5 focus:border-palmas-blue/30 transition-all duration-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed;
   }
 
   .label {

@@ -1,11 +1,10 @@
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { ShoppingBag, LayoutDashboard, Store, LogOut, Menu, Zap } from 'lucide-react'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { ShoppingBag, LayoutDashboard, Store, Clock, LogOut, Menu, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 
 export default function AdminLayout() {
   const { user, signOut } = useAuthStore()
-  const navigate = useNavigate()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -53,7 +52,7 @@ export default function AdminLayout() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  ? 'bg-palmas-blue text-white shadow-md'
                   : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
               }`
             }
@@ -66,7 +65,7 @@ export default function AdminLayout() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  ? 'bg-palmas-blue text-white shadow-md'
                   : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
               }`
             }
@@ -75,11 +74,24 @@ export default function AdminLayout() {
             Minha Loja
           </NavLink>
           <NavLink
+            to="/admin/hours"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-palmas-blue text-white shadow-md'
+                  : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
+              }`
+            }
+          >
+            <Clock size={18} />
+            Horário
+          </NavLink>
+          <NavLink
             to="/admin/plans"
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-palmas-blue text-palmas-blue border border-palmas-blue'
+                  ? 'bg-palmas-blue text-white shadow-md'
                   : 'text-gray-600 hover:text-palmas-text hover:bg-gray-100'
               }`
             }
