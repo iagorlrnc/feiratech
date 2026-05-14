@@ -232,15 +232,6 @@ export default function AdminHoursPage() {
         )}
       </form>
 
-      <div className="mt-8 p-6 bg-gradient-to-br from-palmas-blue to-palmas-dark rounded-3xl text-white shadow-xl shadow-palmas-blue/20 relative overflow-hidden group">
-        <Clock size={120} className="absolute -right-10 -bottom-10 text-white/10 rotate-12 transition-transform group-hover:rotate-0 duration-700" />
-        <div className="relative z-10">
-          <h4 className="font-bold text-xl mb-2">Atendimento de Excelência</h4>
-          <p className="text-white/80 text-sm leading-relaxed max-w-md">
-            Mantenha seus horários sempre atualizados. Visitantes que encontram informações precisas têm 70% mais chances de realizar uma compra.
-          </p>
-        </div>
-      </div>
     </div>
   )
 }

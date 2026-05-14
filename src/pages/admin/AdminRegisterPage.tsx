@@ -14,7 +14,6 @@ import {
   ChevronLeft,
 } from "lucide-react"
 import { useAuthStore } from "../../store/authStore"
-import { supabase } from "../../lib/supabase"
 
 const STEPS = ["Dados Pessoais", "Dados de Acesso", "Confirmação"]
 
@@ -76,7 +75,7 @@ export default function AdminRegisterPage() {
     setError("")
 
     try {
-      const { data, error } = await signUp({
+      const result = await signUp({
         email: form.email,
         password: form.password,
         full_name: form.full_name,
@@ -84,23 +83,23 @@ export default function AdminRegisterPage() {
         role: "admin",
       })
 
-      if (error) {
-        setError(error)
+      if (result.error) {
+        setError(result.error)
         setLocalLoading(false)
         return
       }
 
-      // Se houver sessão, o login foi automático
-      if (data?.session) {
+      // Se chegamos aqui, os dados foram enviados com sucesso
+      if (result.data?.session) {
         navigate("/admin/dashboard")
       } else {
-        // Se não houver sessão, provavelmente precisa confirmar e-mail
+        // Redireciona para login informando que deu certo
         navigate("/admin/login", { 
-          state: { message: "Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro." } 
+          state: { message: "Cadastro realizado com sucesso! Faça login para continuar." } 
         })
       }
     } catch (err) {
-      setError("Erro inesperado ao cadastrar")
+      setError("Erro inesperado ao cadastrar. Tente fazer login.")
     } finally {
       setLocalLoading(false)
     }

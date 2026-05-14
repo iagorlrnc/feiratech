@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MapPin, CheckCircle, Clock, RefreshCw } from 'lucide-react'
 import { useStoreStore } from '../../store/storeStore'
+import { CATEGORY_ICONS } from '../../lib/supabase'
 import FairMap from '../../components/FairMap'
 import StoreModal from '../../components/StoreModal'
 import type { Store } from '../../lib/supabase'
@@ -103,13 +104,12 @@ export default function CeoMapPage() {
                     : 'bg-white border border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
-                  {store.category === 'alimentacao' ? '🍽️' :
-                   store.category === 'moda' ? '👗' :
-                   store.category === 'artesanato' ? '🎨' :
-                   store.category === 'eletronicos' ? '📱' :
-                   store.category === 'beleza' ? '💄' :
-                   store.category === 'servicos' ? '🔧' : '📦'}
+                <div className="w-9 h-9 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-lg flex-shrink-0 overflow-hidden">
+                  {store.logo_url ? (
+                    <img src={store.logo_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS] || '📦'
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-palmas-text text-sm truncate">{store.name}</div>

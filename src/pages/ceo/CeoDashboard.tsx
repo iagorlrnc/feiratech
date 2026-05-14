@@ -6,11 +6,11 @@ import {
   Map,
   Clock,
   CheckCircle,
-  AlertCircle,
   ArrowRight,
   Star,
 } from "lucide-react"
 import { useStoreStore } from "../../store/storeStore"
+import { CATEGORY_ICONS } from "../../lib/supabase"
 
 export default function CeoDashboard() {
   const { stores, loading, fetchAllStores } = useStoreStore()
@@ -23,7 +23,6 @@ export default function CeoDashboard() {
   const active = stores.filter((s) => s.status === "active").length
   const featured = stores.filter((s) => s.is_featured).length
   const pending = stores.filter((s) => s.status === "pending").length
-  const suspended = stores.filter((s) => s.status === "suspended").length
 
   const stats = [
     {
@@ -151,7 +150,7 @@ export default function CeoDashboard() {
                 desc: "Controlar acessos",
                 color: "earth",
               },
-            ].map(({ to, icon: Icon, label, desc, color }) => (
+            ].map(({ to, icon: Icon, label, desc }) => (
               <Link
                 key={to}
                 to={to}
@@ -225,12 +224,12 @@ export default function CeoDashboard() {
                 key={store.id}
                 className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors"
               >
-                <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-xl shadow-sm">
-                  {store.category === "alimentacao"
-                    ? "🍽️"
-                    : store.category === "moda"
-                      ? "👗"
-                      : "📦"}
+                <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-xl shadow-sm overflow-hidden">
+                  {store.logo_url ? (
+                    <img src={store.logo_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS] || '📦'
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-gray-900 text-sm">

@@ -1,27 +1,12 @@
 import { create } from "zustand"
 import { supabase, type Profile } from "../lib/supabase"
 
-type AuthResult = { error: { message?: string } | null; data: any }
-
-function withTimeout<T>(
-  promise: any,
-  timeoutMs = 10000,
-  errorMessage = "A operação demorou demais",
-) {
-  return Promise.race<T>([
-    promise,
-    new Promise<T>((_, reject) => {
-      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
-    }),
-  ])
-}
-
 interface AuthState {
   user: Profile | null
   loading: boolean
   initialized: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (data: SignUpData) => Promise<{ error: string | null }>
+  signUp: (data: SignUpData) => Promise<{ data: any; error: string | null }>
   signOut: () => Promise<void>
   fetchProfile: (userId: string) => Promise<void>
   init: () => Promise<void>
@@ -72,14 +57,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const normalizedEmail = email.trim().toLowerCase()
 
-      const { data, error } = await withTimeout<AuthResult>(
-        supabase.auth.signInWithPassword({
-          email: normalizedEmail,
-          password,
-        }) as any,
-        20000,
-        "Erro ao entrar: a requisição demorou demais",
-      )
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      })
 
       if (error) {
         set({ loading: false })
@@ -98,7 +79,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return { error: rawMessage }
       }
 
-      // Load profile immediately when possible; onAuthStateChange remains as fallback.
       const authUserId = data?.user?.id
       if (authUserId) {
         await get().fetchProfile(authUserId)
@@ -115,15 +95,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async ({ email, password, full_name, phone, role = "admin" }) => {
     set({ loading: true })
     try {
-      const { data, error: authError } = await withTimeout<any>(
-        supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name, phone, role } },
-        }),
-        30000,
-        "O cadastro demorou demais. Verifique sua conexão."
-      )
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name, phone, role } },
+      })
 
       if (authError) {
         return { data: null, error: authError.message ?? "Erro ao cadastrar" }
@@ -131,7 +107,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       return { data, error: null }
     } catch (err) {
-      return { data: null, error: err instanceof Error ? err.message : "Erro inesperado ao cadastrar" }
+      return { 
+        data: null, 
+        error: err instanceof Error ? err.message : "Erro inesperado ao cadastrar" 
+      }
     } finally {
       set({ loading: false })
     }
@@ -144,7 +123,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.error("Error signing out:", err)
     } finally {
       set({ user: null })
-      // Clear any local storage that might be stuck
       localStorage.clear()
       sessionStorage.clear()
     }

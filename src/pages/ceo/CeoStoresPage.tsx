@@ -3,7 +3,7 @@ import { Search, CheckCircle, Clock, Trash2, Eye, Star } from 'lucide-react'
 import { useStoreStore } from '../../store/storeStore'
 import StoreModal from '../../components/StoreModal'
 import type { Store } from '../../lib/supabase'
-import { CATEGORY_LABELS, CATEGORY_ICONS } from '../../lib/supabase'
+import { CATEGORY_ICONS, CATEGORY_LABELS } from '../../lib/supabase'
 
 type StatusFilter = 'all' | 'pending' | 'active' | 'suspended'
 
@@ -123,8 +123,12 @@ export default function CeoStoresPage() {
                   <tr key={store.id} className="hover:bg-gray-50/50 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform">
-                          {CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS]}
+                        <div className="w-10 h-10 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform overflow-hidden">
+                          {store.logo_url ? (
+                            <img src={store.logo_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS] || '📦'
+                          )}
                         </div>
                         <div>
                           <div className="font-bold text-gray-900 text-sm">{store.name}</div>

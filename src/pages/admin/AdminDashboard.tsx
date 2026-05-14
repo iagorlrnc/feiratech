@@ -17,7 +17,7 @@ export default function AdminDashboard() {
 
   const statusConfig = {
     pending: { label: 'Aguardando aprovação', icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/30' },
-    active: { label: 'Loja ativa', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-600 border-green-600' },
+    active: { label: 'Loja ativa', icon: CheckCircle, color: 'text-white', bg: 'bg-green-600 border-green-600' },
     suspended: { label: 'Loja suspensa', icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30' },
   }
 
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
             <div className={`flex items-center justify-between p-5 rounded-xl border-2 shadow-sm ${status.bg} transition-all hover:shadow-md`}>
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-white shadow-inner`}>
-                  <status.icon size={24} className={status.color} />
+                  <status.icon size={24} className={myStore.status === 'active' ? 'text-green-500' : status.color} />
                 </div>
                 <div>
                   <div className={`font-bold text-lg uppercase tracking-tight ${status.color}`}>{status.label}</div>
@@ -65,15 +65,11 @@ export default function AdminDashboard() {
                     <div className="text-xs text-gray-600 font-medium">Aguardando revisão da administração</div>
                   )}
                   {myStore.status === 'active' && (
-                    <div className="text-xs text-gray-600 font-medium">Sua loja está visível para o público!</div>
+                    <div className="text-xs text-white/90 font-medium">Sua loja está visível para o público!</div>
                   )}
                 </div>
               </div>
-              {myStore.status === 'active' && (
-                <Link to="/" className="text-xs font-bold text-palmas-blue hover:underline bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
-                  Ver no site
-                </Link>
-              )}
+              {/* Ver no site removido a pedido do usuário */}
             </div>
           )}
 
@@ -90,8 +86,12 @@ export default function AdminDashboard() {
                 )}
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute bottom-3 left-4 right-4 flex items-end gap-3">
-                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-lg border-2 border-white flex-shrink-0">
-                    {CATEGORY_ICONS[myStore.category as keyof typeof CATEGORY_ICONS]}
+                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-lg border-2 border-white flex-shrink-0 overflow-hidden">
+                    {myStore.logo_url ? (
+                      <img src={myStore.logo_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      CATEGORY_ICONS[myStore.category as keyof typeof CATEGORY_ICONS] || '📦'
+                    )}
                   </div>
                   <div className="pb-1">
                     <h3 className="font-bold text-white text-lg leading-none drop-shadow-md">{myStore.name}</h3>
@@ -154,30 +154,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Info / Tips */}
-      <div className="p-6 bg-palmas-dark text-white rounded-2xl shadow-xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <CheckCircle size={100} />
-        </div>
-        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-          🚀 Dicas para Vender Mais
-        </h3>
-        <div className="grid gap-3">
-          {[
-            { t: 'Fotos de Qualidade', d: 'Lojas com banner e logo bonitos recebem 3x mais cliques.' },
-            { t: 'Descrição Criativa', d: 'Conte a história dos seus produtos para engajar o público.' },
-            { t: 'Redes Sociais', d: 'Mantenha seu Instagram atualizado para gerar confiança.' },
-          ].map((tip, i) => (
-            <div key={i} className="flex gap-3 items-start bg-white/5 p-3 rounded-xl border border-white/10">
-              <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i+1}</div>
-              <div>
-                <div className="text-xs font-bold text-palmas-blue">{tip.t}</div>
-                <div className="text-[11px] text-gray-300 mt-0.5 leading-tight">{tip.d}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

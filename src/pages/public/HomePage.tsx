@@ -61,9 +61,9 @@ export default function HomePage() {
             {formatDateRange()}
           </div>
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-palmas-text leading-tight tracking-tight">
-            Bem vindo a{' '}
+            Bem vindo à{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-palmas-blue via-palmas-dark to-palmas-blue bg-[length:200%_auto] animate-gradient">
-              Feira Maps
+              Feira Digital
             </span>
           </h1>
           <p className="mt-6 text-gray-500 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
@@ -73,15 +73,14 @@ export default function HomePage() {
 
 
         {/* Stats bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 gap-6 mb-12 max-w-xl mx-auto">
           {[
             { label: 'Expositores', val: stores.length, color: 'text-palmas-blue' },
             { label: 'Categorias', val: categories.length, color: 'text-green-500' },
-            { label: 'Visitantes', val: settings?.visitor_count_display || '15k+', color: 'text-orange-500' },
-          ].map(s => (
-            <div key={s.label} className="card p-6 text-center border-none shadow-sm hover:shadow-md transition-shadow">
-              <div className={`font-display text-3xl font-bold ${s.color} mb-1`}>{s.val}</div>
-              <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">{s.label}</div>
+          ].map((stat) => (
+            <div key={stat.label} className="card p-6 text-center border-none shadow-sm hover:shadow-md transition-shadow">
+              <div className={`font-display text-3xl font-bold ${stat.color} mb-1`}>{stat.val}</div>
+              <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -107,13 +106,17 @@ export default function HomePage() {
                         <div className="absolute inset-0 bg-gradient-to-br from-palmas-blue/10 to-palmas-dark/10" />
                       )}
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[10px] font-bold text-palmas-blue shadow-sm border border-white/20">
-                        {CATEGORY_LABELS[store.category as keyof typeof CATEGORY_LABELS]}
+                        {CATEGORY_LABELS[store.category as keyof typeof CATEGORY_LABELS] || store.category}
                       </div>
                     </div>
                     <div className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-2xl -mt-8 flex-shrink-0 z-10">
-                          {CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS]}
+                        <div className="w-10 h-10 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-2xl -mt-8 flex-shrink-0 z-10 overflow-hidden">
+                          {store.logo_url ? (
+                            <img src={store.logo_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            CATEGORY_ICONS[store.category as keyof typeof CATEGORY_ICONS] || '📦'
+                          )}
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-bold text-gray-900 truncate group-hover:text-palmas-blue transition-colors">{store.name}</h3>
@@ -319,4 +322,3 @@ export default function HomePage() {
     </div>
   )
 }
-

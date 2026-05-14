@@ -1,21 +1,6 @@
 import { create } from "zustand"
 import { supabase, type Store } from "../lib/supabase"
 
-type DbResult = { error: { message?: string } | null }
-
-function withTimeout<T>(
-  promise: any,
-  timeoutMs = 45000,
-  errorMessage = "A requisição demorou demais para concluir (timeout)",
-) {
-  return Promise.race<T>([
-    promise,
-    new Promise<T>((_, reject) => {
-      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
-    }),
-  ])
-}
-
 interface StoreState {
   stores: Store[]
   myStore: Store | null
@@ -43,14 +28,11 @@ export const useStoreStore = create<StoreState>((set) => ({
   fetchActiveStores: async () => {
     set({ loading: true })
     try {
-      const { data, error } = await withTimeout<any>(
-        supabase
-          .from("stores")
-          .select("*, profiles(full_name, email, phone)")
-          .eq("status", "active")
-          .order("name"),
-        10000
-      )
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*, profiles(full_name, email, phone)")
+        .eq("status", "active")
+        .order("name")
       if (error) throw error
       set({ stores: data ?? [] })
     } catch (err) {
@@ -62,14 +44,11 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   fetchMyStore: async (ownerId) => {
     try {
-      const { data, error } = await withTimeout<any>(
-        supabase
-          .from("stores")
-          .select("*")
-          .eq("owner_id", ownerId)
-          .single(),
-        10000
-      )
+      const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("owner_id", ownerId)
+        .single()
       if (error && error.code !== 'PGRST116') throw error // PGRST116 is 'no rows returned'
       set({ myStore: data ?? null })
     } catch (err) {
@@ -79,19 +58,20 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   fetchAllStores: async () => {
     set({ loading: true })
-    const { data } = await supabase
-      .from("stores")
-      .select("*, profiles(full_name, email, phone)")
-      .order("created_at", { ascending: false })
-    set({ stores: data ?? [], loading: false })
+    try {
+      const { data } = await supabase
+        .from("stores")
+        .select("*, profiles(full_name, email, phone)")
+        .order("created_at", { ascending: false })
+      set({ stores: data ?? [], loading: false })
+    } catch (err) {
+      set({ loading: false })
+    }
   },
 
   createStore: async (storeData) => {
     try {
-      const { error } = await withTimeout<any>(
-        supabase.from("stores").insert([storeData]).select().single(),
-        60000
-      )
+      const { error } = await supabase.from("stores").insert([storeData])
       return { error: error?.message ?? null }
     } catch (err) {
       return {
@@ -102,10 +82,7 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   updateStore: async (id, storeData) => {
     try {
-      const { error } = await withTimeout<any>(
-        supabase.from("stores").update(storeData).eq("id", id).select().single(),
-        60000
-      )
+      const { error } = await supabase.from("stores").update(storeData).eq("id", id)
       return { error: error?.message ?? null }
     } catch (err) {
       return {
@@ -116,9 +93,7 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   updateStoreStatus: async (id, status) => {
     try {
-      const { error } = await withTimeout<DbResult>(
-        supabase.from("stores").update({ status }).eq("id", id) as any,
-      )
+      const { error } = await supabase.from("stores").update({ status }).eq("id", id)
       return { error: error?.message ?? null }
     } catch (err) {
       return {
@@ -132,9 +107,7 @@ export const useStoreStore = create<StoreState>((set) => ({
 
   deleteStore: async (id) => {
     try {
-      const { error } = await withTimeout<DbResult>(
-        supabase.from("stores").delete().eq("id", id) as any,
-      )
+      const { error } = await supabase.from("stores").delete().eq("id", id)
       return { error: error?.message ?? null }
     } catch (err) {
       return {
